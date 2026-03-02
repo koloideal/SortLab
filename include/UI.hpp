@@ -7,7 +7,7 @@ class UI {
 public:
     UI();
     
-    void update(const Sorter& sorter, bool isPlaying, bool isFinished, float stepDelay, const Array& array);
+    void update(const Sorter& sorter, bool isPlaying, bool isFinished, int stepsPerFrame, const Array& array);
     void draw(sf::RenderWindow& window);
 
 private:
@@ -18,5 +18,7 @@ private:
     sf::Text swapsText_;
     sf::Text speedText_;
     sf::Text controlsText_;
+    sf::RectangleShape leftBackground_;
+    sf::RectangleShape rightBackground_;
     bool fontLoaded_;
 };

@@ -10,7 +10,7 @@ void App::generateBeepSound() {
     std::vector<sf::Int16> samples(sampleCount);
     
     const float frequency = 440.0f;
-    const float amplitude = 3000.0f;
+    const float amplitude = 30000.0f;
     
     for (unsigned int i = 0; i < sampleCount; ++i) {
         float t = static_cast<float>(i) / sampleRate;

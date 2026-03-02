@@ -12,7 +12,7 @@ App::App()
     , ui_()
     , isPlaying_(false)
     , timeSinceLastStep_(0.0f)
-    , stepDelay_(0.01f)
+    , stepsPerFrame_(1)
     , isSweeping_(false)
     , sweepIndex_(0)
     , sweepTimer_(0.0f)
@@ -22,7 +22,7 @@ App::App()
     window_.setFramerateLimit(60);
     generateBeepSound();
     beepSound_.setBuffer(beepBuffer_);
-    beepSound_.setVolume(15.0f);
+    beepSound_.setVolume(100.0f);
 }
 
 void App::run() {
@@ -55,13 +55,13 @@ void App::handleEvents() {
                     break;
                     
                 case sf::Keyboard::Up:
-                    stepDelay_ = (stepDelay_ > 0.001f) ? stepDelay_ * 0.5f : 0.001f;
-                    if (stepDelay_ < 0.001f) stepDelay_ = 0.001f;
+                    stepsPerFrame_ = (stepsPerFrame_ < 500) ? stepsPerFrame_ * 2 : 500;
+                    if (stepsPerFrame_ < 1) stepsPerFrame_ = 1;
                     break;
                     
                 case sf::Keyboard::Down:
-                    stepDelay_ = (stepDelay_ < 0.5f) ? stepDelay_ * 2.0f : 0.5f;
-                    if (stepDelay_ > 0.5f) stepDelay_ = 0.5f;
+                    stepsPerFrame_ = (stepsPerFrame_ > 1) ? stepsPerFrame_ / 2 : 1;
+                    if (stepsPerFrame_ < 1) stepsPerFrame_ = 1;
                     break;
                     
                 case sf::Keyboard::Num1:
@@ -95,6 +95,7 @@ void App::handleEvents() {
                     sweepIndex_ = 0;
                     lastComparisons_ = 0;
                     lastSwaps_ = 0;
+                    stepsPerFrame_ = 1;
                     break;
                     
                 default:
@@ -105,7 +106,7 @@ void App::handleEvents() {
 }
 
 void App::update(float dt) {
-    ui_.update(*currentSorter_, isPlaying_, currentSorter_->isFinished(), stepDelay_, array_);
+    ui_.update(*currentSorter_, isPlaying_, currentSorter_->isFinished(), stepsPerFrame_, array_);
     
     if (isSweeping_) {
         sweepTimer_ += dt;
@@ -128,40 +129,40 @@ void App::update(float dt) {
     }
     
     if (isPlaying_ && !currentSorter_->isFinished()) {
-        timeSinceLastStep_ += dt;
+        size_t beforeComparisons = array_.getComparisons();
+        size_t beforeSwaps = array_.getSwaps();
         
-        if (timeSinceLastStep_ >= stepDelay_) {
-            size_t beforeComparisons = array_.getComparisons();
-            size_t beforeSwaps = array_.getSwaps();
+        for (int step = 0; step < stepsPerFrame_; ++step) {
+            if (currentSorter_->isFinished()) {
+                break;
+            }
             
             currentSorter_->step(array_);
+        }
+        
+        size_t afterComparisons = array_.getComparisons();
+        size_t afterSwaps = array_.getSwaps();
+        
+        if (afterComparisons > beforeComparisons || afterSwaps > beforeSwaps) {
+            float avgPitch = 1.0f;
             
-            size_t afterComparisons = array_.getComparisons();
-            size_t afterSwaps = array_.getSwaps();
-            
-            if (afterComparisons > beforeComparisons || afterSwaps > beforeSwaps) {
-                float avgPitch = 1.0f;
-                
-                for (int i = 0; i < array_.getSize(); ++i) {
-                    if (array_.getState(i) == Array::State::COMPARE || 
-                        array_.getState(i) == Array::State::SWAP) {
-                        float normalizedValue = array_.getValue(i) / static_cast<float>(array_.getSize());
-                        avgPitch = 0.5f + normalizedValue * 1.5f;
-                        break;
-                    }
+            for (int i = 0; i < array_.getSize(); ++i) {
+                if (array_.getState(i) == Array::State::COMPARE || 
+                    array_.getState(i) == Array::State::SWAP) {
+                    float normalizedValue = array_.getValue(i) / static_cast<float>(array_.getSize());
+                    avgPitch = 0.5f + normalizedValue * 1.5f;
+                    break;
                 }
-                
-                playBeep(avgPitch);
             }
             
-            timeSinceLastStep_ = 0.0f;
-            
-            if (currentSorter_->isFinished()) {
-                array_.resetStates();
-                isSweeping_ = true;
-                sweepIndex_ = 0;
-                sweepTimer_ = 0.0f;
-            }
+            playBeep(avgPitch);
+        }
+        
+        if (currentSorter_->isFinished()) {
+            array_.resetStates();
+            isSweeping_ = true;
+            sweepIndex_ = 0;
+            sweepTimer_ = 0.0f;
         }
     }
 }
@@ -204,4 +205,5 @@ void App::switchSorter(std::unique_ptr<Sorter> newSorter) {
     sweepIndex_ = 0;
     lastComparisons_ = 0;
     lastSwaps_ = 0;
+    stepsPerFrame_ = 1;
 }

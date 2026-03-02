@@ -25,7 +25,7 @@ private:
     UI ui_;
     bool isPlaying_;
     float timeSinceLastStep_;
-    float stepDelay_;
+    int stepsPerFrame_;
     
     sf::SoundBuffer beepBuffer_;
     sf::Sound beepSound_;

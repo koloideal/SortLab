@@ -10,38 +10,40 @@ UI::UI() : fontLoaded_(false) {
     fontLoaded_ = true;
     
     algorithmText_.setFont(font_);
-    algorithmText_.setCharacterSize(24);
+    algorithmText_.setCharacterSize(28);
     algorithmText_.setFillColor(sf::Color::White);
-    algorithmText_.setPosition(20.0f, 20.0f);
+    algorithmText_.setPosition(15.0f, 15.0f);
     
     stateText_.setFont(font_);
     stateText_.setCharacterSize(20);
     stateText_.setFillColor(sf::Color::White);
-    stateText_.setPosition(20.0f, 55.0f);
+    stateText_.setPosition(15.0f, 50.0f);
     
     comparisonsText_.setFont(font_);
     comparisonsText_.setCharacterSize(18);
-    comparisonsText_.setFillColor(sf::Color(200, 200, 200));
-    comparisonsText_.setPosition(20.0f, 90.0f);
+    comparisonsText_.setFillColor(sf::Color(220, 220, 220));
+    comparisonsText_.setPosition(15.0f, 80.0f);
     
     swapsText_.setFont(font_);
     swapsText_.setCharacterSize(18);
-    swapsText_.setFillColor(sf::Color(200, 200, 200));
-    swapsText_.setPosition(20.0f, 115.0f);
+    swapsText_.setFillColor(sf::Color(220, 220, 220));
+    swapsText_.setPosition(15.0f, 105.0f);
     
     speedText_.setFont(font_);
     speedText_.setCharacterSize(18);
-    speedText_.setFillColor(sf::Color(200, 200, 200));
-    speedText_.setPosition(20.0f, 140.0f);
+    speedText_.setFillColor(sf::Color(220, 220, 220));
+    speedText_.setPosition(15.0f, 130.0f);
     
     controlsText_.setFont(font_);
-    controlsText_.setCharacterSize(14);
-    controlsText_.setFillColor(sf::Color(150, 150, 150));
-    controlsText_.setPosition(20.0f, 175.0f);
+    controlsText_.setCharacterSize(15);
+    controlsText_.setFillColor(sf::Color(200, 200, 200));
     controlsText_.setString("[1-5] Algorithms  [Space] Play/Pause  [Right] Step  [Up/Down] Speed  [R] Shuffle");
+    
+    leftBackground_.setFillColor(sf::Color(0, 0, 0, 180));
+    rightBackground_.setFillColor(sf::Color(0, 0, 0, 180));
 }
 
-void UI::update(const Sorter& sorter, bool isPlaying, bool isFinished, float stepDelay, const Array& array) {
+void UI::update(const Sorter& sorter, bool isPlaying, bool isFinished, int stepsPerFrame, const Array& array) {
     if (!fontLoaded_) {
         return;
     }
@@ -63,15 +65,31 @@ void UI::update(const Sorter& sorter, bool isPlaying, bool isFinished, float ste
     
     comparisonsText_.setString("Comparisons: " + std::to_string(array.getComparisons()));
     swapsText_.setString("Swaps: " + std::to_string(array.getSwaps()));
-    
-    int delayMs = static_cast<int>(stepDelay * 1000.0f);
-    speedText_.setString("Delay: " + std::to_string(delayMs) + "ms");
+    speedText_.setString("Speed: " + std::to_string(stepsPerFrame) + "x");
 }
 
 void UI::draw(sf::RenderWindow& window) {
     if (!fontLoaded_) {
         return;
     }
+    
+    float leftWidth = 350.0f;
+    float leftHeight = 160.0f;
+    leftBackground_.setSize(sf::Vector2f(leftWidth, leftHeight));
+    leftBackground_.setPosition(5.0f, 5.0f);
+    
+    sf::FloatRect controlsBounds = controlsText_.getLocalBounds();
+    float rightWidth = controlsBounds.width + 20.0f;
+    float rightHeight = controlsBounds.height + 20.0f;
+    float windowWidth = static_cast<float>(window.getSize().x);
+    
+    rightBackground_.setSize(sf::Vector2f(rightWidth, rightHeight));
+    rightBackground_.setPosition(windowWidth - rightWidth - 5.0f, 5.0f);
+    
+    controlsText_.setPosition(windowWidth - controlsBounds.width - 15.0f, 15.0f);
+    
+    window.draw(leftBackground_);
+    window.draw(rightBackground_);
     
     window.draw(algorithmText_);
     window.draw(stateText_);
