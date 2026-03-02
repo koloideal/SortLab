@@ -18,12 +18,20 @@ FetchContent_MakeAvailable(SFML)
 add_executable(SortLab
     src/main.cpp
     src/App.cpp
+    src/App_audio.cpp
     src/Array.cpp
+    src/Sorter.cpp
+    src/UI.cpp
+    src/sorters/BubbleSorter.cpp
+    src/sorters/SelectionSorter.cpp
+    src/sorters/InsertionSorter.cpp
+    src/sorters/MergeSorter.cpp
+    src/sorters/QuickSorter.cpp
 )
 
 target_include_directories(SortLab PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-target_link_libraries(SortLab PRIVATE sfml-graphics sfml-window sfml-system)
+target_link_libraries(SortLab PRIVATE sfml-graphics sfml-window sfml-system sfml-audio)
 
 
 if(WIN32)

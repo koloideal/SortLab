@@ -1,6 +1,8 @@
 #include "Array.hpp"
+#include <random>
+#include <algorithm>
 
-Array::Array(int size) {
+Array::Array(int size) : comparisons_(0), swaps_(0) {
     data_.resize(size);
     states_.resize(size, State::NORMAL);
     shuffle();
@@ -27,4 +29,25 @@ void Array::setState(int index, State state) { states_[index] = state; }
 
 void Array::resetStates() {
     std::fill(states_.begin(), states_.end(), State::NORMAL);
+}
+
+void Array::resetCounters() {
+    comparisons_ = 0;
+    swaps_ = 0;
+}
+
+size_t Array::getComparisons() const {
+    return comparisons_;
+}
+
+size_t Array::getSwaps() const {
+    return swaps_;
+}
+
+void Array::incrementComparisons() {
+    comparisons_++;
+}
+
+void Array::incrementSwaps() {
+    swaps_++;
 }
