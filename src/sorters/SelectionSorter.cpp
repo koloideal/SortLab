@@ -77,7 +77,7 @@ std::string SelectionSorter::getName() const {
 }
 
 std::string SelectionSorter::getTimeComplexity() const {
-    return "O(n²) / O(n²) / O(n²)";
+    return "O(n^2) / O(n^2) / O(n^2)";
 }
 
 std::string SelectionSorter::getSpaceComplexity() const {

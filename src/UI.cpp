@@ -201,14 +201,14 @@ void UI::drawInfoOverlay(sf::RenderWindow& window) {
     body2.setCharacterSize(32);
     body2.setScale(0.5f, 0.5f);
     body2.setFillColor(sf::Color(200, 200, 200));
-    body2.setString(toSfStr(u8"[1] Bubble Sort      Время: O(n\u00B2) / O(n\u00B2) / O(n\u00B2)         Память: O(1)\n[2] Selection Sort   Время: O(n\u00B2) / O(n\u00B2) / O(n\u00B2)         Память: O(1)\n[3] Insertion Sort   Время: O(n) / O(n\u00B2) / O(n\u00B2)          Память: O(1)\n[4] Merge Sort       Время: O(n log n) / O(n log n) / ...  Память: O(n)\n[5] Quick Sort       Время: O(n log n) / O(n log n) / ...  Память: O(log n)"));
+    body2.setString(toSfStr(u8"[1] Bubble Sort      Время: O(n) / O(n^2) / O(n^2)         Память: O(1)\n[2] Selection Sort   Время: O(n^2) / O(n^2) / O(n^2)        Память: O(1)\n[3] Insertion Sort   Время: O(n) / O(n^2) / O(n^2)          Память: O(1)\n[4] Merge Sort       Время: O(n log n) / O(n log n) / O(n log n)  Память: O(n)\n[5] Quick Sort       Время: O(n log n) / O(n log n) / O(n^2)  Память: O(log n)"));
     
     sf::Text section3;
     section3.setFont(font_);
     section3.setCharacterSize(42);
     section3.setScale(0.5f, 0.5f);
     section3.setFillColor(sf::Color(0, 220, 255));
-    section3.setString(toSfStr(u8"Δ Гистограмма (внизу слева)"));
+    section3.setString(toSfStr(u8"Гистограмма (внизу слева)"));
     
     sf::Text body3;
     body3.setFont(font_);

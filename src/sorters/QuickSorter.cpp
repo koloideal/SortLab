@@ -109,11 +109,11 @@ std::string QuickSorter::getName() const {
 }
 
 std::string QuickSorter::getTimeComplexity() const {
-    return "O(n log n) / O(n log n) / O(n²)";
+    return "O(n log n) / O(n log n) / O(n^2)";
 }
 
 std::string QuickSorter::getSpaceComplexity() const {
-    return "O(log n)";
+    return "O(n)";
 }
 
 void QuickSorter::reset() {

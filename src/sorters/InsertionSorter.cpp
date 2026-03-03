@@ -68,7 +68,7 @@ std::string InsertionSorter::getName() const {
 }
 
 std::string InsertionSorter::getTimeComplexity() const {
-    return "O(n) / O(n²) / O(n²)";
+    return "O(n) / O(n^2) / O(n^2)";
 }
 
 std::string InsertionSorter::getSpaceComplexity() const {
