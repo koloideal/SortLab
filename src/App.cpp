@@ -6,10 +6,11 @@
 #include "sorters/QuickSorter.hpp"
 
 App::App() 
-    : window_(sf::VideoMode(1280, 720), "SortLab")
+    : window_(sf::VideoMode(1600, 900), "SortLab")
     , array_(100)
     , currentSorter_(std::make_unique<BubbleSorter>())
     , ui_()
+    , opsHistory_(300)
     , isPlaying_(false)
     , timeSinceLastStep_(0.0f)
     , stepsPerFrame_(1)
@@ -18,11 +19,16 @@ App::App()
     , sweepTimer_(0.0f)
     , sweepDelay_(0.005f)
     , lastComparisons_(0)
-    , lastSwaps_(0) {
+    , lastSwaps_(0)
+    , histogramFontLoaded_(false) {
     window_.setFramerateLimit(60);
     generateBeepSound();
     beepSound_.setBuffer(beepBuffer_);
     beepSound_.setVolume(100.0f);
+    
+    if (histogramFont_.loadFromFile("assets/fonts/JetBrainsMono-Regular.ttf")) {
+        histogramFontLoaded_ = true;
+    }
 }
 
 void App::run() {
@@ -89,6 +95,7 @@ void App::handleEvents() {
                     array_.resetStates();
                     array_.resetCounters();
                     currentSorter_->reset();
+                    opsHistory_.reset();
                     isPlaying_ = false;
                     timeSinceLastStep_ = 0.0f;
                     isSweeping_ = false;
@@ -96,6 +103,10 @@ void App::handleEvents() {
                     lastComparisons_ = 0;
                     lastSwaps_ = 0;
                     stepsPerFrame_ = 1;
+                    break;
+                    
+                case sf::Keyboard::Q:
+                    window_.close();
                     break;
                     
                 default:
@@ -138,6 +149,7 @@ void App::update(float dt) {
             }
             
             currentSorter_->step(array_);
+            opsHistory_.record(array_.getComparisons());
         }
         
         size_t afterComparisons = array_.getComparisons();
@@ -170,15 +182,18 @@ void App::update(float dt) {
 void App::render() {
     window_.clear(sf::Color(10, 12, 20)); 
 
+    const float histogramHeight = 120.0f;
+    const float availableHeight = window_.getSize().y - histogramHeight;
+    
     float width = window_.getSize().x / static_cast<float>(array_.getSize());
     float maxVal = static_cast<float>(array_.getSize());
 
     sf::VertexArray vertices(sf::Quads);
 
     for (int i = 0; i < array_.getSize(); ++i) {
-        float height = (array_.getValue(i) / maxVal) * (window_.getSize().y * 0.8f);
+        float height = (array_.getValue(i) / maxVal) * (availableHeight * 0.75f);
         float x = i * width;
-        float y = window_.getSize().y - height;
+        float y = availableHeight - height;
         
         sf::Color barColor;
         bool useGradient = false;
@@ -215,22 +230,76 @@ void App::render() {
                 static_cast<sf::Uint8>(bottomColor.b + (topColor.b - bottomColor.b) * normalizedValue * 0.6f)
             );
             
-            vertices.append(sf::Vertex(sf::Vector2f(x, window_.getSize().y), gradientBottom));
-            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, window_.getSize().y), gradientBottom));
+            vertices.append(sf::Vertex(sf::Vector2f(x, availableHeight), gradientBottom));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, availableHeight), gradientBottom));
             vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, y), gradientTop));
             vertices.append(sf::Vertex(sf::Vector2f(x, y), gradientTop));
         } else {
-            vertices.append(sf::Vertex(sf::Vector2f(x, window_.getSize().y), barColor));
-            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, window_.getSize().y), barColor));
+            vertices.append(sf::Vertex(sf::Vector2f(x, availableHeight), barColor));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, availableHeight), barColor));
             vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, y), barColor));
             vertices.append(sf::Vertex(sf::Vector2f(x, y), barColor));
         }
     }
 
     window_.draw(vertices);
+    renderHistogram();
     ui_.draw(window_);
     
     window_.display();
+}
+
+void App::renderHistogram() {
+    const float histogramHeight = 120.0f;
+    const float histogramY = window_.getSize().y - histogramHeight;
+    
+    sf::RectangleShape background(sf::Vector2f(window_.getSize().x, histogramHeight));
+    background.setPosition(0.0f, histogramY);
+    background.setFillColor(sf::Color(15, 18, 30));
+    window_.draw(background);
+    
+    const auto& history = opsHistory_.getHistory();
+    
+    if (!history.empty()) {
+        size_t maxValue = opsHistory_.getMaxValue();
+        if (maxValue == 0) maxValue = 1;
+        
+        float barWidth = window_.getSize().x / 300.0f;
+        sf::VertexArray histogramBars(sf::Quads);
+        
+        for (size_t i = 0; i < history.size(); ++i) {
+            float barHeight = (static_cast<float>(history[i]) / static_cast<float>(maxValue)) * (histogramHeight - 30.0f);
+            float x = i * barWidth;
+            float y = histogramY + histogramHeight - barHeight - 5.0f;
+            
+            float normalizedValue = static_cast<float>(history[i]) / static_cast<float>(maxValue);
+            sf::Color lowColor(0, 120, 255);
+            sf::Color highColor(0, 220, 255);
+            
+            sf::Color barColor(
+                static_cast<sf::Uint8>(lowColor.r + (highColor.r - lowColor.r) * normalizedValue),
+                static_cast<sf::Uint8>(lowColor.g + (highColor.g - lowColor.g) * normalizedValue),
+                static_cast<sf::Uint8>(lowColor.b + (highColor.b - lowColor.b) * normalizedValue)
+            );
+            
+            histogramBars.append(sf::Vertex(sf::Vector2f(x, histogramY + histogramHeight - 5.0f), barColor));
+            histogramBars.append(sf::Vertex(sf::Vector2f(x + barWidth, histogramY + histogramHeight - 5.0f), barColor));
+            histogramBars.append(sf::Vertex(sf::Vector2f(x + barWidth, y), barColor));
+            histogramBars.append(sf::Vertex(sf::Vector2f(x, y), barColor));
+        }
+        
+        window_.draw(histogramBars);
+    }
+    
+    if (histogramFontLoaded_) {
+        sf::Text label;
+        label.setFont(histogramFont_);
+        label.setString("Comparisons over time");
+        label.setCharacterSize(14);
+        label.setFillColor(sf::Color(180, 180, 180));
+        label.setPosition(10.0f, histogramY + 5.0f);
+        window_.draw(label);
+    }
 }
 
 void App::switchSorter(std::unique_ptr<Sorter> newSorter) {
@@ -238,6 +307,7 @@ void App::switchSorter(std::unique_ptr<Sorter> newSorter) {
     array_.shuffle();
     array_.resetStates();
     array_.resetCounters();
+    opsHistory_.reset();
     isPlaying_ = false;
     timeSinceLastStep_ = 0.0f;
     isSweeping_ = false;

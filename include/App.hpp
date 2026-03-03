@@ -5,6 +5,7 @@
 #include "Array.hpp"
 #include "Sorter.hpp"
 #include "UI.hpp"
+#include "OperationsHistory.hpp"
 
 class App {
 public:
@@ -15,6 +16,7 @@ private:
     void handleEvents();
     void update(float dt);
     void render();
+    void renderHistogram();
     void switchSorter(std::unique_ptr<Sorter> newSorter);
     void generateBeepSound();
     void playBeep(float pitch);
@@ -23,6 +25,7 @@ private:
     Array array_;
     std::unique_ptr<Sorter> currentSorter_;
     UI ui_;
+    OperationsHistory opsHistory_;
     bool isPlaying_;
     float timeSinceLastStep_;
     int stepsPerFrame_;
@@ -37,4 +40,7 @@ private:
     
     size_t lastComparisons_;
     size_t lastSwaps_;
+    
+    sf::Font histogramFont_;
+    bool histogramFontLoaded_;
 };
