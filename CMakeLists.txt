@@ -31,6 +31,10 @@ add_executable(SortLab
     src/sorters/QuickSorter.cpp
 )
 
+if(MSVC)
+    target_compile_options(SortLab PRIVATE /utf-8)
+endif()
+
 target_include_directories(SortLab PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(SortLab PRIVATE sfml-graphics sfml-window sfml-system sfml-audio)
