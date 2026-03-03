@@ -76,6 +76,14 @@ std::string SelectionSorter::getName() const {
     return "Selection Sort";
 }
 
+std::string SelectionSorter::getTimeComplexity() const {
+    return "O(n²) / O(n²) / O(n²)";
+}
+
+std::string SelectionSorter::getSpaceComplexity() const {
+    return "O(1)";
+}
+
 void SelectionSorter::reset() {
     i_ = 0;
     j_ = 0;

@@ -108,6 +108,14 @@ std::string QuickSorter::getName() const {
     return "Quick Sort";
 }
 
+std::string QuickSorter::getTimeComplexity() const {
+    return "O(n log n) / O(n log n) / O(n²)";
+}
+
+std::string QuickSorter::getSpaceComplexity() const {
+    return "O(log n)";
+}
+
 void QuickSorter::reset() {
     stack_.clear();
     currentLow_ = 0;

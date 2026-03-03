@@ -168,27 +168,66 @@ void App::update(float dt) {
 }
 
 void App::render() {
-    window_.clear(sf::Color(18, 18, 22)); 
+    window_.clear(sf::Color(10, 12, 20)); 
 
     float width = window_.getSize().x / static_cast<float>(array_.getSize());
     float maxVal = static_cast<float>(array_.getSize());
 
+    sf::VertexArray vertices(sf::Quads);
+
     for (int i = 0; i < array_.getSize(); ++i) {
         float height = (array_.getValue(i) / maxVal) * (window_.getSize().y * 0.8f);
+        float x = i * width;
+        float y = window_.getSize().y - height;
         
-        sf::RectangleShape bar(sf::Vector2f(width - 1.0f, height)); 
-        bar.setPosition(i * width, window_.getSize().y - height);   
-
+        sf::Color barColor;
+        bool useGradient = false;
+        
         switch (array_.getState(i)) {
-            case Array::State::NORMAL:  bar.setFillColor(sf::Color(200, 200, 200)); break;
-            case Array::State::COMPARE: bar.setFillColor(sf::Color::Yellow); break;
-            case Array::State::SWAP:    bar.setFillColor(sf::Color::Red); break;
-            case Array::State::SORTED:  bar.setFillColor(sf::Color::Green); break;
+            case Array::State::NORMAL:
+                useGradient = true;
+                break;
+            case Array::State::COMPARE:
+                barColor = sf::Color(0, 220, 255);
+                break;
+            case Array::State::SWAP:
+                barColor = sf::Color(255, 120, 30);
+                break;
+            case Array::State::SORTED:
+                barColor = sf::Color(50, 220, 120);
+                break;
         }
-
-        window_.draw(bar);
+        
+        if (useGradient) {
+            float normalizedValue = array_.getValue(i) / maxVal;
+            sf::Color bottomColor(60, 80, 140);
+            sf::Color topColor(160, 180, 255);
+            
+            sf::Color gradientTop(
+                static_cast<sf::Uint8>(bottomColor.r + (topColor.r - bottomColor.r) * normalizedValue),
+                static_cast<sf::Uint8>(bottomColor.g + (topColor.g - bottomColor.g) * normalizedValue),
+                static_cast<sf::Uint8>(bottomColor.b + (topColor.b - bottomColor.b) * normalizedValue)
+            );
+            
+            sf::Color gradientBottom(
+                static_cast<sf::Uint8>(bottomColor.r + (topColor.r - bottomColor.r) * normalizedValue * 0.6f),
+                static_cast<sf::Uint8>(bottomColor.g + (topColor.g - bottomColor.g) * normalizedValue * 0.6f),
+                static_cast<sf::Uint8>(bottomColor.b + (topColor.b - bottomColor.b) * normalizedValue * 0.6f)
+            );
+            
+            vertices.append(sf::Vertex(sf::Vector2f(x, window_.getSize().y), gradientBottom));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, window_.getSize().y), gradientBottom));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, y), gradientTop));
+            vertices.append(sf::Vertex(sf::Vector2f(x, y), gradientTop));
+        } else {
+            vertices.append(sf::Vertex(sf::Vector2f(x, window_.getSize().y), barColor));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, window_.getSize().y), barColor));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, y), barColor));
+            vertices.append(sf::Vertex(sf::Vector2f(x, y), barColor));
+        }
     }
 
+    window_.draw(vertices);
     ui_.draw(window_);
     
     window_.display();

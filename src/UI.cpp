@@ -2,7 +2,7 @@
 #include <iostream>
 
 UI::UI() : fontLoaded_(false) {
-    if (!font_.loadFromFile("assets/fonts/Roboto-Regular.ttf")) {
+    if (!font_.loadFromFile("assets/fonts/JetBrainsMono-Regular.ttf")) {
         std::cerr << "Failed to load font" << std::endl;
         return;
     }
@@ -19,20 +19,30 @@ UI::UI() : fontLoaded_(false) {
     stateText_.setFillColor(sf::Color::White);
     stateText_.setPosition(15.0f, 50.0f);
     
+    timeComplexityText_.setFont(font_);
+    timeComplexityText_.setCharacterSize(16);
+    timeComplexityText_.setFillColor(sf::Color(160, 160, 160));
+    timeComplexityText_.setPosition(15.0f, 80.0f);
+    
+    spaceComplexityText_.setFont(font_);
+    spaceComplexityText_.setCharacterSize(16);
+    spaceComplexityText_.setFillColor(sf::Color(160, 160, 160));
+    spaceComplexityText_.setPosition(15.0f, 105.0f);
+    
     comparisonsText_.setFont(font_);
     comparisonsText_.setCharacterSize(18);
     comparisonsText_.setFillColor(sf::Color(220, 220, 220));
-    comparisonsText_.setPosition(15.0f, 80.0f);
+    comparisonsText_.setPosition(15.0f, 135.0f);
     
     swapsText_.setFont(font_);
     swapsText_.setCharacterSize(18);
     swapsText_.setFillColor(sf::Color(220, 220, 220));
-    swapsText_.setPosition(15.0f, 105.0f);
+    swapsText_.setPosition(15.0f, 160.0f);
     
     speedText_.setFont(font_);
     speedText_.setCharacterSize(18);
     speedText_.setFillColor(sf::Color(220, 220, 220));
-    speedText_.setPosition(15.0f, 130.0f);
+    speedText_.setPosition(15.0f, 185.0f);
     
     controlsText_.setFont(font_);
     controlsText_.setCharacterSize(15);
@@ -63,6 +73,9 @@ void UI::update(const Sorter& sorter, bool isPlaying, bool isFinished, int steps
     }
     stateText_.setString(state);
     
+    timeComplexityText_.setString("Time:  " + sorter.getTimeComplexity());
+    spaceComplexityText_.setString("Space: " + sorter.getSpaceComplexity());
+    
     comparisonsText_.setString("Comparisons: " + std::to_string(array.getComparisons()));
     swapsText_.setString("Swaps: " + std::to_string(array.getSwaps()));
     speedText_.setString("Speed: " + std::to_string(stepsPerFrame) + "x");
@@ -74,7 +87,7 @@ void UI::draw(sf::RenderWindow& window) {
     }
     
     float leftWidth = 350.0f;
-    float leftHeight = 160.0f;
+    float leftHeight = 215.0f;
     leftBackground_.setSize(sf::Vector2f(leftWidth, leftHeight));
     leftBackground_.setPosition(5.0f, 5.0f);
     
@@ -93,6 +106,8 @@ void UI::draw(sf::RenderWindow& window) {
     
     window.draw(algorithmText_);
     window.draw(stateText_);
+    window.draw(timeComplexityText_);
+    window.draw(spaceComplexityText_);
     window.draw(comparisonsText_);
     window.draw(swapsText_);
     window.draw(speedText_);

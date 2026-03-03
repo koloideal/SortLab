@@ -63,6 +63,14 @@ std::string BubbleSorter::getName() const {
     return "Bubble Sort";
 }
 
+std::string BubbleSorter::getTimeComplexity() const {
+    return "O(n) / O(n²) / O(n²)";
+}
+
+std::string BubbleSorter::getSpaceComplexity() const {
+    return "O(1)";
+}
+
 void BubbleSorter::reset() {
     i_ = 0;
     j_ = 0;

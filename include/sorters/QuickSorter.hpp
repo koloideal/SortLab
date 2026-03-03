@@ -10,6 +10,8 @@ public:
     bool isFinished() const override;
     std::string getName() const override;
     void reset() override;
+    std::string getTimeComplexity() const override;
+    std::string getSpaceComplexity() const override;
 
 private:
     enum class Phase { PARTITIONING, SWAPPING_PIVOT, PUSHING_RANGES };

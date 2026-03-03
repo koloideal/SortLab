@@ -14,6 +14,8 @@ private:
     sf::Font font_;
     sf::Text algorithmText_;
     sf::Text stateText_;
+    sf::Text timeComplexityText_;
+    sf::Text spaceComplexityText_;
     sf::Text comparisonsText_;
     sf::Text swapsText_;
     sf::Text speedText_;

@@ -121,6 +121,14 @@ std::string MergeSorter::getName() const {
     return "Merge Sort";
 }
 
+std::string MergeSorter::getTimeComplexity() const {
+    return "O(n log n) / O(n log n) / O(n log n)";
+}
+
+std::string MergeSorter::getSpaceComplexity() const {
+    return "O(n)";
+}
+
 void MergeSorter::reset() {
     currentSize_ = 1;
     leftStart_ = 0;

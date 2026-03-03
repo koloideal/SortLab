@@ -10,4 +10,6 @@ public:
     virtual bool isFinished() const = 0;
     virtual std::string getName() const = 0;
     virtual void reset() = 0;
+    virtual std::string getTimeComplexity() const = 0;
+    virtual std::string getSpaceComplexity() const = 0;
 };
