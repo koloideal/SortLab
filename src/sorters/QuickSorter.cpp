@@ -1,74 +1,61 @@
 #include "sorters/QuickSorter.hpp"
 
-QuickSorter::QuickSorter()
-    : currentLow_(0), currentHigh_(0), pivotIndex_(0), i_(0), j_(0)
-    , pivotValue_(0.0f), finished_(false), phase_(Phase::PARTITIONING), n_(0) {
+QuickSorter::QuickSorter() {
+    reset();
 }
 
 void QuickSorter::step(Array& array) {
-    if (finished_) {
-        return;
-    }
-    
+    if (finished_) return;
+
     if (n_ == 0) {
         n_ = array.getSize();
         stack_.push_back({0, n_ - 1});
+        needNewRange_ = true;
     }
-    
-    if (stack_.empty()) {
-        array.resetStates();
-        for (int k = 0; k < n_; ++k) {
-            array.setState(k, Array::State::SORTED);
+
+    if (needNewRange_) {
+        while (!stack_.empty() && stack_.back().low >= stack_.back().high) {
+            stack_.pop_back();
         }
-        finished_ = true;
+
+        if (stack_.empty()) {
+            array.resetStates();
+            for (int k = 0; k < n_; ++k)
+                array.setState(k, Array::State::SORTED);
+            finished_ = true;
+            return;
+        }
+
+        Range range = stack_.back();
+        stack_.pop_back();
+        currentLow_ = range.low;
+        currentHigh_ = range.high;
+        pivotIndex_ = currentHigh_;
+        pivotValue_ = array.getValue(pivotIndex_);
+        i_ = currentLow_ - 1;
+        j_ = currentLow_;
+        needNewRange_ = false;
+        phase_ = Phase::PARTITIONING;
         return;
     }
-    
+
     if (phase_ == Phase::PARTITIONING) {
-        if (j_ == currentLow_) {
-            Range range = stack_.back();
-            stack_.pop_back();
-            
-            if (range.low >= range.high) {
-                if (stack_.empty()) {
-                    array.resetStates();
-                    for (int k = 0; k < n_; ++k) {
-                        array.setState(k, Array::State::SORTED);
-                    }
-                    finished_ = true;
-                }
-                return;
-            }
-            
-            currentLow_ = range.low;
-            currentHigh_ = range.high;
-            pivotIndex_ = currentHigh_;
-            pivotValue_ = array.getValue(pivotIndex_);
-            i_ = currentLow_ - 1;
-            j_ = currentLow_;
-        }
-        
         if (j_ < currentHigh_) {
             array.resetStates();
             array.setState(j_, Array::State::COMPARE);
             array.setState(pivotIndex_, Array::State::SWAP);
-            
             array.incrementComparisons();
-            
+
             if (array.getValue(j_) < pivotValue_) {
                 i_++;
-                
                 if (i_ != j_) {
                     array.setState(i_, Array::State::SWAP);
-                    
                     float temp = array.getValue(i_);
                     array.setValue(i_, array.getValue(j_));
                     array.setValue(j_, temp);
-                    
                     array.incrementSwaps();
                 }
             }
-            
             j_++;
         } else {
             phase_ = Phase::SWAPPING_PIVOT;
@@ -77,26 +64,21 @@ void QuickSorter::step(Array& array) {
         array.resetStates();
         array.setState(i_ + 1, Array::State::SWAP);
         array.setState(pivotIndex_, Array::State::SWAP);
-        
+
         float temp = array.getValue(i_ + 1);
         array.setValue(i_ + 1, array.getValue(pivotIndex_));
         array.setValue(pivotIndex_, temp);
-        
         array.incrementSwaps();
+
         pivotIndex_ = i_ + 1;
-        
         phase_ = Phase::PUSHING_RANGES;
     } else if (phase_ == Phase::PUSHING_RANGES) {
-        if (pivotIndex_ - 1 > currentLow_) {
+        if (pivotIndex_ - 1 > currentLow_)
             stack_.push_back({currentLow_, pivotIndex_ - 1});
-        }
-        
-        if (pivotIndex_ + 1 < currentHigh_) {
+        if (pivotIndex_ + 1 < currentHigh_)
             stack_.push_back({pivotIndex_ + 1, currentHigh_});
-        }
-        
-        j_ = currentLow_;
-        phase_ = Phase::PARTITIONING;
+
+        needNewRange_ = true;
     }
 }
 
@@ -113,7 +95,7 @@ std::string QuickSorter::getTimeComplexity() const {
 }
 
 std::string QuickSorter::getSpaceComplexity() const {
-    return "O(n)";
+    return "O(log n)";
 }
 
 void QuickSorter::reset() {
@@ -125,6 +107,7 @@ void QuickSorter::reset() {
     j_ = 0;
     pivotValue_ = 0.0f;
     finished_ = false;
+    needNewRange_ = true;
     phase_ = Phase::PARTITIONING;
     n_ = 0;
 }

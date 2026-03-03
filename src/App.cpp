@@ -27,7 +27,12 @@ App::App()
     generateBeepSound();
     beepSound_.setBuffer(beepBuffer_);
     beepSound_.setVolume(100.0f);
-    
+
+    sf::Image icon;
+    if (icon.loadFromFile("assets/icon.png")) {
+        window_.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+    }
+
     if (bottomPanelFont_.loadFromFile("assets/fonts/JetBrainsMono-Regular.ttf")) {
         bottomPanelFontLoaded_ = true;
     }

@@ -5,30 +5,21 @@
 class QuickSorter : public Sorter {
 public:
     QuickSorter();
-    
     void step(Array& array) override;
     bool isFinished() const override;
     std::string getName() const override;
-    void reset() override;
     std::string getTimeComplexity() const override;
     std::string getSpaceComplexity() const override;
+    void reset() override;
 
 private:
+    struct Range { int low; int high; };
     enum class Phase { PARTITIONING, SWAPPING_PIVOT, PUSHING_RANGES };
-    
-    struct Range {
-        int low;
-        int high;
-    };
-    
+
     std::vector<Range> stack_;
-    int currentLow_;
-    int currentHigh_;
-    int pivotIndex_;
-    int i_;
-    int j_;
+    Phase phase_;
+    int currentLow_, currentHigh_, pivotIndex_, i_, j_, n_;
     float pivotValue_;
     bool finished_;
-    Phase phase_;
-    int n_;
+    bool needNewRange_;  
 };
