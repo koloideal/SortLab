@@ -6,6 +6,7 @@
 #include "Sorter.hpp"
 #include "UI.hpp"
 #include "OperationsHistory.hpp"
+#include "ProgressMap.hpp"
 
 class App {
 public:
@@ -16,7 +17,7 @@ private:
     void handleEvents();
     void update(float dt);
     void render();
-    void renderHistogram();
+    void renderDeltaHistogram();
     void switchSorter(std::unique_ptr<Sorter> newSorter);
     void generateBeepSound();
     void playBeep(float pitch);
@@ -26,6 +27,7 @@ private:
     std::unique_ptr<Sorter> currentSorter_;
     UI ui_;
     OperationsHistory opsHistory_;
+    ProgressMap progressMap_;
     bool isPlaying_;
     float timeSinceLastStep_;
     int stepsPerFrame_;
@@ -41,6 +43,7 @@ private:
     size_t lastComparisons_;
     size_t lastSwaps_;
     
-    sf::Font histogramFont_;
-    bool histogramFontLoaded_;
+    sf::Font bottomPanelFont_;
+    bool bottomPanelFontLoaded_;
+    bool showInfo_;
 };

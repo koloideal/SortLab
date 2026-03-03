@@ -9,6 +9,7 @@ public:
     
     void update(const Sorter& sorter, bool isPlaying, bool isFinished, int stepsPerFrame, const Array& array);
     void draw(sf::RenderWindow& window);
+    void drawInfoOverlay(sf::RenderWindow& window);
 
 private:
     sf::Font font_;

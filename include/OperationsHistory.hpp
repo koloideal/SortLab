@@ -4,14 +4,15 @@
 
 class OperationsHistory {
 public:
-    OperationsHistory(size_t maxSamples = 300);
+    OperationsHistory(size_t maxSamples = 400);
     
-    void record(size_t comparisons);
+    void record(size_t currentComparisons);
     void reset();
-    const std::deque<size_t>& getHistory() const;
-    size_t getMaxValue() const;
+    const std::deque<size_t>& getDeltaHistory() const;
+    size_t getMaxDelta() const;
 
 private:
-    std::deque<size_t> compareHistory_;
+    std::deque<size_t> deltaHistory_;
     size_t maxSamples_;
+    size_t lastComparisons_;
 };

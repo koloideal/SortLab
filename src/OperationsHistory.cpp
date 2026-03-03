@@ -2,29 +2,36 @@
 #include <algorithm>
 
 OperationsHistory::OperationsHistory(size_t maxSamples) 
-    : maxSamples_(maxSamples) {
+    : maxSamples_(maxSamples), lastComparisons_(0) {
 }
 
-void OperationsHistory::record(size_t comparisons) {
-    compareHistory_.push_back(comparisons);
+void OperationsHistory::record(size_t currentComparisons) {
+    size_t delta = 0;
+    if (currentComparisons >= lastComparisons_) {
+        delta = currentComparisons - lastComparisons_;
+    }
     
-    if (compareHistory_.size() > maxSamples_) {
-        compareHistory_.pop_front();
+    deltaHistory_.push_back(delta);
+    lastComparisons_ = currentComparisons;
+    
+    if (deltaHistory_.size() > maxSamples_) {
+        deltaHistory_.pop_front();
     }
 }
 
 void OperationsHistory::reset() {
-    compareHistory_.clear();
+    deltaHistory_.clear();
+    lastComparisons_ = 0;
 }
 
-const std::deque<size_t>& OperationsHistory::getHistory() const {
-    return compareHistory_;
+const std::deque<size_t>& OperationsHistory::getDeltaHistory() const {
+    return deltaHistory_;
 }
 
-size_t OperationsHistory::getMaxValue() const {
-    if (compareHistory_.empty()) {
+size_t OperationsHistory::getMaxDelta() const {
+    if (deltaHistory_.empty()) {
         return 1;
     }
     
-    return *std::max_element(compareHistory_.begin(), compareHistory_.end());
+    return *std::max_element(deltaHistory_.begin(), deltaHistory_.end());
 }

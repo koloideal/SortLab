@@ -23,6 +23,7 @@ add_executable(SortLab
     src/Sorter.cpp
     src/UI.cpp
     src/OperationsHistory.cpp
+    src/ProgressMap.cpp
     src/sorters/BubbleSorter.cpp
     src/sorters/SelectionSorter.cpp
     src/sorters/InsertionSorter.cpp

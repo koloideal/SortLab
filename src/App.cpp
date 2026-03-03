@@ -10,7 +10,8 @@ App::App()
     , array_(100)
     , currentSorter_(std::make_unique<BubbleSorter>())
     , ui_()
-    , opsHistory_(300)
+    , opsHistory_(400)
+    , progressMap_()
     , isPlaying_(false)
     , timeSinceLastStep_(0.0f)
     , stepsPerFrame_(1)
@@ -20,14 +21,15 @@ App::App()
     , sweepDelay_(0.005f)
     , lastComparisons_(0)
     , lastSwaps_(0)
-    , histogramFontLoaded_(false) {
+    , bottomPanelFontLoaded_(false)
+    , showInfo_(false) {
     window_.setFramerateLimit(60);
     generateBeepSound();
     beepSound_.setBuffer(beepBuffer_);
     beepSound_.setVolume(100.0f);
     
-    if (histogramFont_.loadFromFile("assets/fonts/JetBrainsMono-Regular.ttf")) {
-        histogramFontLoaded_ = true;
+    if (bottomPanelFont_.loadFromFile("assets/fonts/JetBrainsMono-Regular.ttf")) {
+        bottomPanelFontLoaded_ = true;
     }
 }
 
@@ -109,6 +111,10 @@ void App::handleEvents() {
                     window_.close();
                     break;
                     
+                case sf::Keyboard::I:
+                    showInfo_ = !showInfo_;
+                    break;
+                    
                 default:
                     break;
             }
@@ -182,8 +188,11 @@ void App::update(float dt) {
 void App::render() {
     window_.clear(sf::Color(10, 12, 20)); 
 
-    const float histogramHeight = 120.0f;
-    const float availableHeight = window_.getSize().y - histogramHeight;
+    const float topUIHeight = 80.0f;
+    const float bottomPanelHeight = 140.0f;
+    const float mainAreaTop = topUIHeight;
+    const float mainAreaBottom = window_.getSize().y - bottomPanelHeight;
+    const float mainAreaHeight = mainAreaBottom - mainAreaTop;
     
     float width = window_.getSize().x / static_cast<float>(array_.getSize());
     float maxVal = static_cast<float>(array_.getSize());
@@ -191,9 +200,9 @@ void App::render() {
     sf::VertexArray vertices(sf::Quads);
 
     for (int i = 0; i < array_.getSize(); ++i) {
-        float height = (array_.getValue(i) / maxVal) * (availableHeight * 0.75f);
+        float height = (array_.getValue(i) / maxVal) * (mainAreaHeight * 0.9f);
         float x = i * width;
-        float y = availableHeight - height;
+        float y = mainAreaBottom - height;
         
         sf::Color barColor;
         bool useGradient = false;
@@ -230,51 +239,71 @@ void App::render() {
                 static_cast<sf::Uint8>(bottomColor.b + (topColor.b - bottomColor.b) * normalizedValue * 0.6f)
             );
             
-            vertices.append(sf::Vertex(sf::Vector2f(x, availableHeight), gradientBottom));
-            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, availableHeight), gradientBottom));
+            vertices.append(sf::Vertex(sf::Vector2f(x, mainAreaBottom), gradientBottom));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, mainAreaBottom), gradientBottom));
             vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, y), gradientTop));
             vertices.append(sf::Vertex(sf::Vector2f(x, y), gradientTop));
         } else {
-            vertices.append(sf::Vertex(sf::Vector2f(x, availableHeight), barColor));
-            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, availableHeight), barColor));
+            vertices.append(sf::Vertex(sf::Vector2f(x, mainAreaBottom), barColor));
+            vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, mainAreaBottom), barColor));
             vertices.append(sf::Vertex(sf::Vector2f(x + width - 1.0f, y), barColor));
             vertices.append(sf::Vertex(sf::Vector2f(x, y), barColor));
         }
     }
 
     window_.draw(vertices);
-    renderHistogram();
+    
+    sf::RectangleShape separator(sf::Vector2f(window_.getSize().x, 1.0f));
+    separator.setPosition(0.0f, mainAreaBottom);
+    separator.setFillColor(sf::Color(40, 45, 60));
+    window_.draw(separator);
+    
+    renderDeltaHistogram();
+    progressMap_.draw(window_, array_, bottomPanelFont_, bottomPanelFontLoaded_);
+    
+    sf::RectangleShape verticalSeparator(sf::Vector2f(1.0f, bottomPanelHeight));
+    verticalSeparator.setPosition(1066.0f, mainAreaBottom);
+    verticalSeparator.setFillColor(sf::Color(40, 45, 60));
+    window_.draw(verticalSeparator);
+    
     ui_.draw(window_);
+    
+    if (showInfo_) {
+        ui_.drawInfoOverlay(window_);
+    }
     
     window_.display();
 }
 
-void App::renderHistogram() {
-    const float histogramHeight = 120.0f;
-    const float histogramY = window_.getSize().y - histogramHeight;
+void App::renderDeltaHistogram() {
+    const float startX = 0.0f;
+    const float startY = 760.0f;
+    const float width = 1066.0f;
+    const float height = 140.0f;
     
-    sf::RectangleShape background(sf::Vector2f(window_.getSize().x, histogramHeight));
-    background.setPosition(0.0f, histogramY);
-    background.setFillColor(sf::Color(15, 18, 30));
+    sf::RectangleShape background(sf::Vector2f(width, height));
+    background.setPosition(startX, startY);
+    background.setFillColor(sf::Color(12, 15, 25));
     window_.draw(background);
     
-    const auto& history = opsHistory_.getHistory();
+    const auto& deltaHistory = opsHistory_.getDeltaHistory();
     
-    if (!history.empty()) {
-        size_t maxValue = opsHistory_.getMaxValue();
-        if (maxValue == 0) maxValue = 1;
+    if (!deltaHistory.empty()) {
+        size_t maxDelta = opsHistory_.getMaxDelta();
+        if (maxDelta == 0) maxDelta = 1;
         
-        float barWidth = window_.getSize().x / 300.0f;
+        float barWidth = width / 400.0f;
+        float availableHeight = height - 25.0f;
         sf::VertexArray histogramBars(sf::Quads);
         
-        for (size_t i = 0; i < history.size(); ++i) {
-            float barHeight = (static_cast<float>(history[i]) / static_cast<float>(maxValue)) * (histogramHeight - 30.0f);
-            float x = i * barWidth;
-            float y = histogramY + histogramHeight - barHeight - 5.0f;
+        for (size_t i = 0; i < deltaHistory.size(); ++i) {
+            float barHeight = (static_cast<float>(deltaHistory[i]) / static_cast<float>(maxDelta)) * availableHeight;
+            float x = startX + i * barWidth;
+            float y = startY + height - barHeight;
             
-            float normalizedValue = static_cast<float>(history[i]) / static_cast<float>(maxValue);
-            sf::Color lowColor(0, 120, 255);
-            sf::Color highColor(0, 220, 255);
+            float normalizedValue = static_cast<float>(deltaHistory[i]) / static_cast<float>(maxDelta);
+            sf::Color lowColor(0, 80, 200);
+            sf::Color highColor(0, 240, 255);
             
             sf::Color barColor(
                 static_cast<sf::Uint8>(lowColor.r + (highColor.r - lowColor.r) * normalizedValue),
@@ -282,8 +311,8 @@ void App::renderHistogram() {
                 static_cast<sf::Uint8>(lowColor.b + (highColor.b - lowColor.b) * normalizedValue)
             );
             
-            histogramBars.append(sf::Vertex(sf::Vector2f(x, histogramY + histogramHeight - 5.0f), barColor));
-            histogramBars.append(sf::Vertex(sf::Vector2f(x + barWidth, histogramY + histogramHeight - 5.0f), barColor));
+            histogramBars.append(sf::Vertex(sf::Vector2f(x, startY + height), barColor));
+            histogramBars.append(sf::Vertex(sf::Vector2f(x + barWidth, startY + height), barColor));
             histogramBars.append(sf::Vertex(sf::Vector2f(x + barWidth, y), barColor));
             histogramBars.append(sf::Vertex(sf::Vector2f(x, y), barColor));
         }
@@ -291,13 +320,18 @@ void App::renderHistogram() {
         window_.draw(histogramBars);
     }
     
-    if (histogramFontLoaded_) {
+    sf::RectangleShape baseline(sf::Vector2f(width, 1.0f));
+    baseline.setPosition(startX, startY + height - 1.0f);
+    baseline.setFillColor(sf::Color(60, 70, 90));
+    window_.draw(baseline);
+    
+    if (bottomPanelFontLoaded_) {
         sf::Text label;
-        label.setFont(histogramFont_);
-        label.setString("Comparisons over time");
-        label.setCharacterSize(14);
+        label.setFont(bottomPanelFont_);
+        label.setString("Delta Comparisons / step");
+        label.setCharacterSize(13);
         label.setFillColor(sf::Color(180, 180, 180));
-        label.setPosition(10.0f, histogramY + 5.0f);
+        label.setPosition(startX + 10.0f, startY + 5.0f);
         window_.draw(label);
     }
 }
