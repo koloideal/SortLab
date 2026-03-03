@@ -53,20 +53,20 @@
 ## 🖥️ Интерфейс
 
 ```
-┌──────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────┐
 │ 📊 Algorithm: Quick Sort   Time: O(n log n)   Comparisons: 1.2k │  ← UI панель
-├────────────────────────────────────┬─────────────────────────┤
-│                                    │                         │
-│         📈 Столбики массива        │   🗺️ Progress Map       │
-│                                    │                         │
-├────────────────────────────────────┴─────────────────────────┤
-│  📉 Δ Comparisons / step  [гистограмма]                      │  ← нижняя панель
-└──────────────────────────────────────────────────────────────┘
+├────────────────────────────────────┬────────────────────────────┤
+│                                    │                            │
+│         📈 Столбики массива        │   🗺️ Progress Map         │
+│                                    │                            │
+├────────────────────────────────────┴────────────────────────────┤
+│  📉 Δ Comparisons / step  [гистограмма]                         │  ← нижняя панель
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 - 📊 **Главная область** — столбики с цветовой индикацией состояний
 - 🗺️ **Progress Map** — миниатюрная сетка всего массива, зеленеет по мере сортировки
-- 📉 **Δ Гистограмма** — количество сравнений на каждом шаге (пульс алгоритма)
+- 📉 **Гистограмма** — количество сравнений на каждом шаге (пульс алгоритма)
 
 ### 🎨 Цветовая схема
 
@@ -99,92 +99,16 @@ cmake --build build --config Release
 > 💡 SFML 2.6 скачивается и компилируется автоматически при первой сборке.
 > ⏱️ Первый запуск `cmake -S . -B build` займёт 1–3 минуты.
 
-### 🔤 Шрифт
-Скачай [JetBrains Mono](https://www.jetbrains.com/lp/mono/) и положи файл в:
-```
-assets/fonts/JetBrainsMono-Regular.ttf
-```
-
----
-
-## 📁 Структура проекта
-
-```
-SortLab/
-├── 🎨 assets/
-│   ├── fonts/JetBrainsMono-Regular.ttf
-│   ├── icon.ico
-│   ├── icon.png
-│   ├── preview.png
-│   └── app.rc
-├── 📋 include/
-│   ├── App.hpp
-│   ├── Array.hpp
-│   ├── Sorter.hpp
-│   ├── UI.hpp
-│   ├── OperationsHistory.hpp
-│   ├── ProgressMap.hpp
-│   └── sorters/
-│       ├── BubbleSorter.hpp
-│       ├── SelectionSorter.hpp
-│       ├── InsertionSorter.hpp
-│       ├── MergeSorter.hpp
-│       └── QuickSorter.hpp
-├── 💻 src/
-│   ├── main.cpp
-│   ├── App.cpp
-│   ├── App_audio.cpp
-│   ├── Array.cpp
-│   ├── Sorter.cpp
-│   ├── UI.cpp
-│   ├── OperationsHistory.cpp
-│   ├── ProgressMap.cpp
-│   └── sorters/
-│       ├── BubbleSorter.cpp
-│       ├── SelectionSorter.cpp
-│       ├── InsertionSorter.cpp
-│       ├── MergeSorter.cpp
-│       └── QuickSorter.cpp
-└── ⚙️ CMakeLists.txt
-```
-
----
-
-## 🏗️ Архитектура
-
-```
-main()
-  └── App::run()
-        ├── handleEvents()   — ввод с клавиатуры
-        ├── update(dt)       — шаг сортировки + гистограмма
-        └── render()
-              ├── Array bars          — основная визуализация
-              ├── UI overlay          — текст, статистика
-              ├── ProgressMap         — мини-карта
-              └── HistogramRenderer   — Δ гистограмма
-
-Sorter (abstract)
-  ├── BubbleSorter
-  ├── SelectionSorter
-  ├── InsertionSorter
-  ├── MergeSorter
-  └── QuickSorter
-```
-
-> 🔑 Ключевой паттерн: все алгоритмы реализованы как **конечные автоматы** (state machines).
-> Метод `step()` выполняет ровно одну атомарную операцию и возвращает управление,
-> не блокируя главный поток рендеринга.
-
 ---
 
 ## 📜 Лицензия
 
 ```
-MIT License — 2026
+MIT 
 ```
 
 ---
 
 <div align="center">
-  <sub>🎓 made for college coursework &nbsp;|&nbsp; built with ❤️ and C++17</sub>
+  <sub>🎓 made for college coursework &nbsp;|&nbsp; built with ❤️ by <b>kolo</b></sub>
 </div>
