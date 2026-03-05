@@ -58,7 +58,7 @@ UI::UI() : fontLoaded_(false) {
     controlsText_.setCharacterSize(30);
     controlsText_.setScale(0.5f, 0.5f);
     controlsText_.setFillColor(sf::Color(200, 200, 200));
-    controlsText_.setString("[1-5] Algorithms  [Space] Play/Pause  [Right] Step  [Up/Down] Speed  [R] Shuffle");
+    controlsText_.setString("[1-8] Algorithms  [Space] Play/Pause  [Right] Step  [Up/Down] Speed  [R] Shuffle");
     
     leftBackground_.setFillColor(sf::Color(0, 0, 0, 180));
     rightBackground_.setFillColor(sf::Color(0, 0, 0, 180));
@@ -201,7 +201,7 @@ void UI::drawInfoOverlay(sf::RenderWindow& window) {
     body2.setCharacterSize(32);
     body2.setScale(0.5f, 0.5f);
     body2.setFillColor(sf::Color(200, 200, 200));
-    body2.setString(toSfStr(u8"[1] Bubble Sort      Время: O(n) / O(n^2) / O(n^2)         Память: O(1)\n[2] Selection Sort   Время: O(n^2) / O(n^2) / O(n^2)        Память: O(1)\n[3] Insertion Sort   Время: O(n) / O(n^2) / O(n^2)          Память: O(1)\n[4] Merge Sort       Время: O(n log n) / O(n log n) / O(n log n)  Память: O(n)\n[5] Quick Sort       Время: O(n log n) / O(n log n) / O(n^2)  Память: O(log n)"));
+    body2.setString(toSfStr(u8"[1] Bubble Sort      Время: O(n) / O(n^2) / O(n^2)              Память: O(1)\n[2] Selection Sort   Время: O(n^2) / O(n^2) / O(n^2)           Память: O(1)\n[3] Insertion Sort   Время: O(n) / O(n^2) / O(n^2)             Память: O(1)\n[4] Merge Sort       Время: O(n log n) / O(n log n) / O(n log n)  Память: O(n)\n[5] Quick Sort       Время: O(n log n) / O(n log n) / O(n^2)   Память: O(log n)\n[6] Heap Sort        Время: O(n log n)                         Память: O(1)\n[7] Shell Sort       Время: O(n log^2 n)                       Память: O(1)\n[8] Radix Sort       Время: O(n*k)                             Память: O(n + k)"));
     
     sf::Text section3;
     section3.setFont(font_);

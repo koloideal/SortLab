@@ -30,6 +30,9 @@ if(WIN32)
         src/sorters/InsertionSorter.cpp
         src/sorters/MergeSorter.cpp
         src/sorters/QuickSorter.cpp
+        src/sorters/HeapSorter.cpp
+        src/sorters/ShellSorter.cpp
+        src/sorters/RadixSorter.cpp
         assets/app.rc
     )
 else()
@@ -47,6 +50,9 @@ else()
         src/sorters/InsertionSorter.cpp
         src/sorters/MergeSorter.cpp
         src/sorters/QuickSorter.cpp
+        src/sorters/HeapSorter.cpp
+        src/sorters/ShellSorter.cpp
+        src/sorters/RadixSorter.cpp
     )
 endif()
 

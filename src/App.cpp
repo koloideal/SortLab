@@ -4,6 +4,9 @@
 #include "sorters/InsertionSorter.hpp"
 #include "sorters/MergeSorter.hpp"
 #include "sorters/QuickSorter.hpp"
+#include "sorters/HeapSorter.hpp"
+#include "sorters/ShellSorter.hpp"
+#include "sorters/RadixSorter.hpp"
 
 App::App() 
     : window_(sf::VideoMode(1600, 900), "SortLab")
@@ -95,6 +98,18 @@ void App::handleEvents() {
                     
                 case sf::Keyboard::Num5:
                     switchSorter(std::make_unique<QuickSorter>());
+                    break;
+                    
+                case sf::Keyboard::Num6:
+                    switchSorter(std::make_unique<HeapSorter>());
+                    break;
+                    
+                case sf::Keyboard::Num7:
+                    switchSorter(std::make_unique<ShellSorter>());
+                    break;
+                    
+                case sf::Keyboard::Num8:
+                    switchSorter(std::make_unique<RadixSorter>());
                     break;
                     
                 case sf::Keyboard::R:
