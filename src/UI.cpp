@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 
-UI::UI() : fontLoaded_(false) {
+UI::UI() : fontLoaded_(false), historyOpen_(false) {
     if (!font_.loadFromFile("assets/fonts/JetBrainsMono-Regular.ttf")) {
         std::cerr << "Failed to load font" << std::endl;
         return;
@@ -236,7 +236,7 @@ void UI::drawInfoOverlay(sf::RenderWindow& window) {
     footer.setCharacterSize(30);
     footer.setScale(0.5f, 0.5f);
     footer.setFillColor(sf::Color(100, 100, 100));
-    footer.setString(toSfStr(u8"Нажми [I] чтобы закрыть  |  [Q] выход  |  [Space] старт/пауза  |  [R] перемешать"));
+    footer.setString(toSfStr(u8"Нажми [I] чтобы закрыть  |  [H] история  |  [Q] выход  |  [Space] старт/пауза  |  [R] перемешать"));
     
     float totalHeight = 0.0f;
     totalHeight += title.getGlobalBounds().height + 10.0f;
@@ -309,4 +309,142 @@ void UI::drawInfoOverlay(sf::RenderWindow& window) {
     sf::FloatRect footerBounds = footer.getGlobalBounds();
     footer.setPosition(std::floor((windowWidth - footerBounds.width) * 0.5f), std::floor(currentY));
     window.draw(footer);
+}
+
+void UI::toggleHistory() {
+    historyOpen_ = !historyOpen_;
+}
+
+void UI::closeHistory() {
+    historyOpen_ = false;
+}
+
+bool UI::isHistoryOpen() const {
+    return historyOpen_;
+}
+
+void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history) {
+    if (!fontLoaded_) {
+        return;
+    }
+    
+    auto toSfStr = [](const char* utf8) -> sf::String {
+        std::string s(utf8);
+        return sf::String::fromUtf8(s.begin(), s.end());
+    };
+    
+    float windowWidth = static_cast<float>(window.getSize().x);
+    float windowHeight = static_cast<float>(window.getSize().y);
+    
+    sf::RectangleShape overlay(sf::Vector2f(windowWidth, windowHeight));
+    overlay.setPosition(0.0f, 0.0f);
+    overlay.setFillColor(sf::Color(8, 10, 18, 230));
+    window.draw(overlay);
+    
+    sf::Text title;
+    title.setFont(font_);
+    title.setCharacterSize(80);
+    title.setScale(0.5f, 0.5f);
+    title.setFillColor(sf::Color::White);
+    title.setString(toSfStr(u8"История сортировок  [H — закрыть]"));
+    
+    const auto& records = history.getRecords();
+    
+    float startY = 80.0f;
+    
+    sf::FloatRect titleBounds = title.getGlobalBounds();
+    title.setPosition(std::floor((windowWidth - titleBounds.width) * 0.5f), std::floor(startY));
+    window.draw(title);
+    startY += titleBounds.height + 30.0f;
+    
+    if (records.empty()) {
+        sf::Text emptyText;
+        emptyText.setFont(font_);
+        emptyText.setCharacterSize(40);
+        emptyText.setScale(0.5f, 0.5f);
+        emptyText.setFillColor(sf::Color(160, 160, 160));
+        emptyText.setString(toSfStr(u8"Нет завершённых сортировок"));
+        
+        sf::FloatRect emptyBounds = emptyText.getGlobalBounds();
+        emptyText.setPosition(std::floor((windowWidth - emptyBounds.width) * 0.5f), std::floor(windowHeight * 0.5f));
+        window.draw(emptyText);
+        return;
+    }
+    
+    sf::Text header;
+    header.setFont(font_);
+    header.setCharacterSize(36);
+    header.setScale(0.5f, 0.5f);
+    header.setFillColor(sf::Color(0, 220, 255));
+    header.setString(toSfStr(u8"Алгоритм              Размер    Сравнений    Свапов    Скорость"));
+    
+    float tableX = 100.0f;
+    header.setPosition(tableX, startY);
+    window.draw(header);
+    startY += header.getGlobalBounds().height + 15.0f;
+    
+    sf::RectangleShape separator(sf::Vector2f(windowWidth - 200.0f, 1.0f));
+    separator.setPosition(tableX, startY);
+    separator.setFillColor(sf::Color(60, 70, 90));
+    window.draw(separator);
+    startY += 10.0f;
+    
+    int displayCount = 0;
+    for (auto it = records.rbegin(); it != records.rend() && displayCount < 15; ++it, ++displayCount) {
+        const SortRecord& record = *it;
+        
+        float rowHeight = 25.0f;
+        bool isNewest = (displayCount == 0);
+        
+        sf::RectangleShape rowBg(sf::Vector2f(windowWidth - 200.0f, rowHeight));
+        rowBg.setPosition(tableX, startY);
+        
+        if (isNewest) {
+            rowBg.setFillColor(sf::Color(30, 60, 90, 150));
+        } else if (displayCount % 2 == 1) {
+            rowBg.setFillColor(sf::Color(15, 18, 25, 100));
+        } else {
+            rowBg.setFillColor(sf::Color(0, 0, 0, 0));
+        }
+        window.draw(rowBg);
+        
+        char algoBuffer[256];
+        snprintf(algoBuffer, sizeof(algoBuffer), "%-20s  %6d    %9d         %6d        ",
+                 record.algorithmName.c_str(),
+                 record.arraySize,
+                 record.comparisons,
+                 record.swaps);
+        
+        sf::Text rowText;
+        rowText.setFont(font_);
+        rowText.setCharacterSize(32);
+        rowText.setScale(0.5f, 0.5f);
+        rowText.setFillColor(isNewest ? sf::Color(100, 255, 150) : sf::Color(200, 200, 200));
+        rowText.setString(algoBuffer);
+        rowText.setPosition(tableX, startY + 2.0f);
+        window.draw(rowText);
+        
+        char speedBuffer[32];
+        snprintf(speedBuffer, sizeof(speedBuffer), "%.2fx", record.relativeSpeed);
+        
+        sf::Text speedText;
+        speedText.setFont(font_);
+        speedText.setCharacterSize(32);
+        speedText.setScale(0.5f, 0.5f);
+        
+        if (record.relativeSpeed == 1.0f) {
+            speedText.setFillColor(sf::Color(100, 255, 120));
+        } else if (record.relativeSpeed >= 2.0f) {
+            speedText.setFillColor(sf::Color(255, 160, 60));
+        } else {
+            speedText.setFillColor(isNewest ? sf::Color(100, 255, 150) : sf::Color(200, 200, 200));
+        }
+        
+        speedText.setString(speedBuffer);
+        float speedX = tableX + rowText.getGlobalBounds().width;
+        speedText.setPosition(speedX, startY + 2.0f);
+        window.draw(speedText);
+        
+        startY += rowHeight;
+    }
 }

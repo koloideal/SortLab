@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Sorter.hpp"
+#include "SortHistory.hpp"
 #include <string>
 
 class UI {
@@ -10,6 +11,10 @@ public:
     void update(const Sorter& sorter, bool isPlaying, bool isFinished, int stepsPerFrame, const Array& array);
     void draw(sf::RenderWindow& window);
     void drawInfoOverlay(sf::RenderWindow& window);
+    void drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history);
+    void toggleHistory();
+    void closeHistory();
+    bool isHistoryOpen() const;
 
 private:
     sf::Font font_;
@@ -24,4 +29,5 @@ private:
     sf::RectangleShape leftBackground_;
     sf::RectangleShape rightBackground_;
     bool fontLoaded_;
+    bool historyOpen_;
 };

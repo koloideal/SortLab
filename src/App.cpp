@@ -25,7 +25,8 @@ App::App()
     , lastComparisons_(0)
     , lastSwaps_(0)
     , bottomPanelFontLoaded_(false)
-    , showInfo_(false) {
+    , showInfo_(false)
+    , recordedThisRun_(false) {
     window_.setFramerateLimit(60);
     generateBeepSound();
     beepSound_.setBuffer(beepBuffer_);
@@ -125,6 +126,8 @@ void App::handleEvents() {
                     lastComparisons_ = 0;
                     lastSwaps_ = 0;
                     stepsPerFrame_ = 1;
+                    sortTimer_.restart();
+                    recordedThisRun_ = false;
                     break;
                     
                 case sf::Keyboard::Q:
@@ -133,6 +136,16 @@ void App::handleEvents() {
                     
                 case sf::Keyboard::I:
                     showInfo_ = !showInfo_;
+                    if (showInfo_) {
+                        ui_.closeHistory();
+                    }
+                    break;
+                    
+                case sf::Keyboard::H:
+                    ui_.toggleHistory();
+                    if (ui_.isHistoryOpen()) {
+                        showInfo_ = false;
+                    }
                     break;
                     
                 default:
@@ -201,6 +214,17 @@ void App::update(float dt) {
             isSweeping_ = true;
             sweepIndex_ = 0;
             sweepTimer_ = 0.0f;
+            
+            if (!recordedThisRun_) {
+                SortRecord record;
+                record.algorithmName = currentSorter_->getName();
+                record.arraySize = array_.getSize();
+                record.comparisons = array_.getComparisons();
+                record.swaps = array_.getSwaps();
+                record.normalizedTime = sortTimer_.getElapsedTime().asSeconds() * static_cast<float>(stepsPerFrame_);
+                history_.add(record);
+                recordedThisRun_ = true;
+            }
         }
     }
 }
@@ -292,6 +316,10 @@ void App::render() {
         ui_.drawInfoOverlay(window_);
     }
     
+    if (ui_.isHistoryOpen()) {
+        ui_.drawHistoryOverlay(window_, history_);
+    }
+    
     window_.display();
 }
 
@@ -369,4 +397,6 @@ void App::switchSorter(std::unique_ptr<Sorter> newSorter) {
     lastComparisons_ = 0;
     lastSwaps_ = 0;
     stepsPerFrame_ = 1;
+    sortTimer_.restart();
+    recordedThisRun_ = false;
 }

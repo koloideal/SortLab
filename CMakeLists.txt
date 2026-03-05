@@ -25,6 +25,7 @@ if(WIN32)
         src/UI.cpp
         src/OperationsHistory.cpp
         src/ProgressMap.cpp
+        src/SortHistory.cpp
         src/sorters/BubbleSorter.cpp
         src/sorters/SelectionSorter.cpp
         src/sorters/InsertionSorter.cpp
@@ -45,6 +46,7 @@ else()
         src/UI.cpp
         src/OperationsHistory.cpp
         src/ProgressMap.cpp
+        src/SortHistory.cpp
         src/sorters/BubbleSorter.cpp
         src/sorters/SelectionSorter.cpp
         src/sorters/InsertionSorter.cpp

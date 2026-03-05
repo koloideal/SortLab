@@ -7,6 +7,7 @@
 #include "UI.hpp"
 #include "OperationsHistory.hpp"
 #include "ProgressMap.hpp"
+#include "SortHistory.hpp"
 
 class App {
 public:
@@ -46,4 +47,8 @@ private:
     sf::Font bottomPanelFont_;
     bool bottomPanelFontLoaded_;
     bool showInfo_;
+    
+    SortHistory history_;
+    sf::Clock sortTimer_;
+    bool recordedThisRun_;
 };
