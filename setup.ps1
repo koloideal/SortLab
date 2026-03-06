@@ -150,7 +150,6 @@ if ($hasMSVC) {
     }
 
     $extraCmakeArgs = @(
-        "-DCMAKE_C_COMPILER=$gccExe",
         "-DCMAKE_CXX_COMPILER=$gppExe",
         "-DCMAKE_MAKE_PROGRAM=$makeExe"
     )
