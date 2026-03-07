@@ -78,16 +78,16 @@ if ($systemCmake) {
     $ver = (& $systemCmake.Source --version 2>$null | Select-Object -First 1) -replace "cmake version ", ""
     Write-Host "Found system cmake $ver at $($systemCmake.Source)"
     $cmakeExe = $systemCmake.Source
-} elseif (Test-Path (Join-Path $CMAKE "bin\cmake.exe")) {
+} elseif (Test-Path (Join-Path $CMAKE "bin\\cmake.exe")) {
     Write-Host "Found local cmake in .tools"
-    $cmakeExe = Join-Path $CMAKE "bin\cmake.exe"
+    $cmakeExe = Join-Path $CMAKE "bin\\cmake.exe"
 } else {
     $zip = Join-Path $TOOLS $CMAKE_FILE
     Get-File $CMAKE_URL $zip
     Unzip $zip $TOOLS
     $extracted = Get-ChildItem $TOOLS -Directory | Where-Object { $_.Name -like "cmake-3.28*" } | Select-Object -First 1
     Rename-Item $extracted.FullName $CMAKE
-    $cmakeExe = Join-Path $CMAKE "bin\cmake.exe"
+    $cmakeExe = Join-Path $CMAKE "bin\\cmake.exe"
 }
 
 $gppExe       = $null
@@ -103,7 +103,7 @@ $systemGpp = Find-InPath "g++.exe"
 
 if ($hasMSVC) {
     Write-Host "Found MSVC cl.exe"
-    $vsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+    $vsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\\Installer\\vswhere.exe"
     $vsVer = $null
     if (Test-Path $vsWhere) {
         $vsVer = & $vsWhere -latest -property catalog_productLineVersion 2>$null
@@ -113,7 +113,7 @@ if ($hasMSVC) {
     else                       { $generator = "Visual Studio 17 2022" }
     $extraCmakeArgs = @("-A", "x64")
 } elseif ($systemGpp) {
-    $ver = (& $systemGpp.Source --version 2>$null | Select-Object -First 1) -replace ".*?(\d+\.\d+\.\d+).*", '$1'
+    $ver = (& $systemGpp.Source --version 2>$null | Select-Object -First 1) -replace ".*?(\\d+\\.\\d+\\.\\d+).*", '$1'
     Write-Host "Found system g++ $ver at $($systemGpp.Source)"
     $gppExe  = $systemGpp.Source
     $gccExe  = (Find-InPath "gcc.exe").Source
@@ -128,11 +128,11 @@ if ($hasMSVC) {
     $msysArch = Get-MsysArch $gppExe
     if ($msysRoot -and $msysArch) {
         $isMsys2 = $true
-        $msysSfmlDir = Join-Path $msysRoot "$msysArch\lib\cmake\SFML"
+        $msysSfmlDir = Join-Path $msysRoot "$msysArch\\lib\\cmake\\SFML"
         if (-not (Test-Path (Join-Path $msysSfmlDir "SFMLConfig.cmake"))) {
             $pkg = if ($msysArch -eq "ucrt64") { "mingw-w64-ucrt-x86_64-sfml" } elseif ($msysArch -eq "mingw64") { "mingw-w64-x86_64-sfml" } else { "mingw-w64-$msysArch-sfml" }
             Write-Host "SFML not found in MSYS2, installing $pkg via pacman..."
-            $pacman = Join-Path $msysRoot ("usr\bin\pacman.exe")
+            $pacman = Join-Path $msysRoot ("usr\\bin\\pacman.exe")
             if (-not (Test-Path $pacman)) {
                 throw "pacman.exe not found in MSYS2 root $msysRoot"
             }
@@ -150,20 +150,21 @@ if ($hasMSVC) {
     }
 
     $extraCmakeArgs = @(
-        "-DCMAKE_CXX_COMPILER=$gppExe",
-        "-DCMAKE_MAKE_PROGRAM=$makeExe"
+        "-DCMAKE_CXX_COMPILER=$($gppExe -replace '\\', '/')",
+        "-DCMAKE_MAKE_PROGRAM=$($makeExe -replace '\\', '/')"
     )
-} elseif (Test-Path (Join-Path $MINGW "bin\g++.exe")) {
+} elseif (Test-Path (Join-Path $MINGW "bin\\g++.exe")) {
     Write-Host "Found local MinGW in .tools"
-    $gppExe  = Join-Path $MINGW "bin\g++.exe"
-    $gccExe  = Join-Path $MINGW "bin\gcc.exe"
-    $makeExe = Join-Path $MINGW "bin\mingw32-make.exe"
+    $gppExe  = Join-Path $MINGW "bin\\g++.exe"
+    $gccExe  = Join-Path $MINGW "bin\\gcc.exe"
+    $makeExe = Join-Path $MINGW "bin\\mingw32-make.exe"
     $env:PATH = (Join-Path $MINGW "bin") + ";" + $env:PATH
     $generator = "MinGW Makefiles"
+    
     $extraCmakeArgs = @(
-        "-DCMAKE_C_COMPILER=$gccExe",
-        "-DCMAKE_CXX_COMPILER=$gppExe",
-        "-DCMAKE_MAKE_PROGRAM=$makeExe"
+        "-DCMAKE_C_COMPILER=$($gccExe -replace '\\', '/')",
+        "-DCMAKE_CXX_COMPILER=$($gppExe -replace '\\', '/')",
+        "-DCMAKE_MAKE_PROGRAM=$($makeExe -replace '\\', '/')"
     )
 } else {
     $zip = Join-Path $TOOLS $MINGW_FILE
@@ -173,20 +174,21 @@ if ($hasMSVC) {
     if ($extracted -and $extracted.FullName -ne $MINGW) {
         Rename-Item $extracted.FullName $MINGW
     }
-    $gppExe  = Join-Path $MINGW "bin\g++.exe"
-    $gccExe  = Join-Path $MINGW "bin\gcc.exe"
-    $makeExe = Join-Path $MINGW "bin\mingw32-make.exe"
+    $gppExe  = Join-Path $MINGW "bin\\g++.exe"
+    $gccExe  = Join-Path $MINGW "bin\\gcc.exe"
+    $makeExe = Join-Path $MINGW "bin\\mingw32-make.exe"
     $env:PATH = (Join-Path $MINGW "bin") + ";" + $env:PATH
     $generator = "MinGW Makefiles"
+    
     $extraCmakeArgs = @(
-        "-DCMAKE_C_COMPILER=$gccExe",
-        "-DCMAKE_CXX_COMPILER=$gppExe",
-        "-DCMAKE_MAKE_PROGRAM=$makeExe"
+        "-DCMAKE_C_COMPILER=$($gccExe -replace '\\', '/')",
+        "-DCMAKE_CXX_COMPILER=$($gppExe -replace '\\', '/')",
+        "-DCMAKE_MAKE_PROGRAM=$($makeExe -replace '\\', '/')"
     )
 }
 
 if (-not $sfmlCmakeDir) {
-    $sfmlInclude = Join-Path $SFML "include\SFML"
+    $sfmlInclude = Join-Path $SFML "include\\SFML"
     if (!(Test-Path $sfmlInclude)) {
         $zip = Join-Path $TOOLS $SFML_FILE
         Get-File $SFML_URL $zip
@@ -194,7 +196,7 @@ if (-not $sfmlCmakeDir) {
     } else {
         Write-Host "Found local SFML 2.6.1 in .tools"
     }
-    $sfmlCmakeDir = Join-Path $SFML "lib\cmake\SFML"
+    $sfmlCmakeDir = Join-Path $SFML "lib\\cmake\\SFML"
 }
 
 $cacheFile = Join-Path $BUILD "CMakeCache.txt"
@@ -211,11 +213,14 @@ if (Test-Path $cacheFile) {
 
 if (!(Test-Path $cacheFile)) {
     Write-Host "Configuring with generator: $generator"
+    
+    $sfmlCmakeDirFixed = $sfmlCmakeDir -replace '\\', '/'
+    
     $configArgs = @(
         "-S", $ROOT,
         "-B", $BUILD,
         "-G", $generator,
-        "-DSFML_DIR=$sfmlCmakeDir",
+        "-DSFML_DIR=$sfmlCmakeDirFixed",
         "-DCMAKE_BUILD_TYPE=Release"
     ) + $extraCmakeArgs
     & $cmakeExe @configArgs
@@ -238,13 +243,31 @@ if (-not $isMsys2) {
     foreach ($dir in $dllDirs) {
         if (Test-Path (Join-Path $dir "sfml-graphics*.dll")) {
             Copy-Item (Join-Path $dir "*.dll") $BUILD -Force
-            Write-Host "Copied DLLs from $dir"
+            Write-Host "Copied SFML DLLs from $dir"
             $copied = $true
             break
         }
     }
     if (-not $copied) {
         Write-Host "Warning: SFML DLLs not found, you may need to copy them manually"
+    }
+
+    $mingwBin = Split-Path $gppExe
+    if (Test-Path $mingwBin) {
+        $mingwDlls = @(
+            "libstdc++-6.dll",
+            "libgcc_s_seh-1.dll",
+            "libwinpthread-1.dll"
+        )
+        foreach ($dll in $mingwDlls) {
+            $src = Join-Path $mingwBin $dll
+            if (Test-Path $src) {
+                Copy-Item $src $BUILD -Force
+                Write-Host "Copied MinGW DLL: $dll"
+            } else {
+                Write-Host "Warning: Could not find $dll in $mingwBin"
+            }
+        }
     }
 } else {
     Write-Host "MSYS2 build: DLLs are handled by CMake TARGET_RUNTIME_DLLS"

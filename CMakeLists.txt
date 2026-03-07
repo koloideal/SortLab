@@ -48,6 +48,10 @@ else()
     add_executable(SortLab ${SORTLAB_SOURCES})
 endif()
 
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_options(SortLab PRIVATE "-static-libgcc" "-static-libstdc++" "-static" "-lpthread")
+endif()
+
 if(MSVC)
     target_compile_options(SortLab PRIVATE /utf-8)
 endif()
