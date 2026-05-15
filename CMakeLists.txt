@@ -43,7 +43,7 @@ set(SORTLAB_SOURCES
 )
 
 if(WIN32)
-    add_executable(SortLab ${SORTLAB_SOURCES} assets/app.rc)
+    add_executable(SortLab WIN32 ${SORTLAB_SOURCES} assets/app.rc)
 else()
     add_executable(SortLab ${SORTLAB_SOURCES})
 endif()
