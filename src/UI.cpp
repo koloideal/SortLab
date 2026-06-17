@@ -104,7 +104,6 @@ void UI::draw(sf::RenderWindow& window) {
     
     const ColorPalette& palette = Theme::getInstance().getPalette();
     
-    // Обновляем цвета текста и фона при каждой отрисовке (на случай смены темы)
     algorithmText_.setFillColor(palette.textPrimary);
     timeComplexityText_.setFillColor(palette.textTertiary);
     spaceComplexityText_.setFillColor(palette.textTertiary);

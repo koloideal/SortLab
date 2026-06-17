@@ -27,7 +27,7 @@ void HeapSorter::step(Array& array) {
         }
         heapifyIndex_ = buildIndex_;
         phase_ = Phase::HEAPIFY_DOWN;
-        needSwap_ = false; // Используем как флаг, что мы в контексте BUILD
+        needSwap_ = false;
     } 
     else if (phase_ == Phase::HEAPIFY_DOWN || phase_ == Phase::EXTRACT_HEAPIFY) {
         leftChild_ = 2 * heapifyIndex_ + 1;
@@ -63,9 +63,7 @@ void HeapSorter::step(Array& array) {
             array.incrementSwaps();
             
             heapifyIndex_ = largest_;
-            // Остаемся в текущей фазе, чтобы продолжить просеивание вниз
         } else {
-            // Элемент на своем месте, просеивание закончено
             if (phase_ == Phase::HEAPIFY_DOWN) {
                 buildIndex_--;
                 phase_ = Phase::BUILDING_HEAP;

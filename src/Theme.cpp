@@ -12,13 +12,11 @@ Theme::Theme() : currentTheme_(ThemeType::DARK) {
 }
 
 void Theme::initDarkTheme() {
-    // Основные цвета фона
     darkPalette_.windowBackground = sf::Color(10, 12, 20);
     darkPalette_.panelBackground = sf::Color(0, 0, 0, 180);
     darkPalette_.bottomPanelBackground = sf::Color(12, 15, 25);
     darkPalette_.overlayBackground = sf::Color(8, 10, 18, 230);
     
-    // Цвета текста
     darkPalette_.textPrimary = sf::Color::White;
     darkPalette_.textSecondary = sf::Color(220, 220, 220);
     darkPalette_.textTertiary = sf::Color(160, 160, 160);
