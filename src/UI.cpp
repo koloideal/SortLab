@@ -1,5 +1,6 @@
 #pragma execution_character_set("utf-8")
 #include "UI.hpp"
+#include "Theme.hpp"
 #include <iostream>
 #include <cmath>
 
@@ -12,56 +13,58 @@ UI::UI() : fontLoaded_(false), historyOpen_(false) {
     font_.setSmooth(true);
     fontLoaded_ = true;
     
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
     algorithmText_.setFont(font_);
     algorithmText_.setCharacterSize(56);
     algorithmText_.setScale(0.5f, 0.5f);
-    algorithmText_.setFillColor(sf::Color::White);
+    algorithmText_.setFillColor(palette.textPrimary);
     algorithmText_.setPosition(15.0f, 15.0f);
     
     stateText_.setFont(font_);
     stateText_.setCharacterSize(40);
     stateText_.setScale(0.5f, 0.5f);
-    stateText_.setFillColor(sf::Color::White);
+    stateText_.setFillColor(palette.textPrimary);
     stateText_.setPosition(15.0f, 50.0f);
     
     timeComplexityText_.setFont(font_);
     timeComplexityText_.setCharacterSize(32);
     timeComplexityText_.setScale(0.5f, 0.5f);
-    timeComplexityText_.setFillColor(sf::Color(160, 160, 160));
+    timeComplexityText_.setFillColor(palette.textTertiary);
     timeComplexityText_.setPosition(15.0f, 80.0f);
     
     spaceComplexityText_.setFont(font_);
     spaceComplexityText_.setCharacterSize(32);
     spaceComplexityText_.setScale(0.5f, 0.5f);
-    spaceComplexityText_.setFillColor(sf::Color(160, 160, 160));
+    spaceComplexityText_.setFillColor(palette.textTertiary);
     spaceComplexityText_.setPosition(15.0f, 105.0f);
     
     comparisonsText_.setFont(font_);
     comparisonsText_.setCharacterSize(36);
     comparisonsText_.setScale(0.5f, 0.5f);
-    comparisonsText_.setFillColor(sf::Color(220, 220, 220));
+    comparisonsText_.setFillColor(palette.textSecondary);
     comparisonsText_.setPosition(15.0f, 135.0f);
     
     swapsText_.setFont(font_);
     swapsText_.setCharacterSize(36);
     swapsText_.setScale(0.5f, 0.5f);
-    swapsText_.setFillColor(sf::Color(220, 220, 220));
+    swapsText_.setFillColor(palette.textSecondary);
     swapsText_.setPosition(15.0f, 160.0f);
     
     speedText_.setFont(font_);
     speedText_.setCharacterSize(36);
     speedText_.setScale(0.5f, 0.5f);
-    speedText_.setFillColor(sf::Color(220, 220, 220));
+    speedText_.setFillColor(palette.textSecondary);
     speedText_.setPosition(15.0f, 185.0f);
     
     controlsText_.setFont(font_);
     controlsText_.setCharacterSize(30);
     controlsText_.setScale(0.5f, 0.5f);
-    controlsText_.setFillColor(sf::Color(200, 200, 200));
-    controlsText_.setString("[1-8] Algorithms  [Space] Play/Pause  [Right] Step  [Up/Down] Speed  [R] Shuffle");
+    controlsText_.setFillColor(palette.textSecondary);
+    controlsText_.setString("[1-8] Algorithms  [Space] Play/Pause  [Right] Step  [Up/Down] Speed  [R] Shuffle  [T] Theme");
     
-    leftBackground_.setFillColor(sf::Color(0, 0, 0, 180));
-    rightBackground_.setFillColor(sf::Color(0, 0, 0, 180));
+    leftBackground_.setFillColor(palette.panelBackground);
+    rightBackground_.setFillColor(palette.panelBackground);
 }
 
 void UI::update(const Sorter& sorter, bool isPlaying, bool isFinished, int stepsPerFrame, const Array& array) {
@@ -69,18 +72,20 @@ void UI::update(const Sorter& sorter, bool isPlaying, bool isFinished, int steps
         return;
     }
     
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
     algorithmText_.setString("Algorithm: " + sorter.getName());
     
     std::string state;
     if (isFinished) {
         state = "Status: Finished";
-        stateText_.setFillColor(sf::Color::Green);
+        stateText_.setFillColor(palette.statusFinished);
     } else if (isPlaying) {
         state = "Status: Playing";
-        stateText_.setFillColor(sf::Color::Yellow);
+        stateText_.setFillColor(palette.statusPlaying);
     } else {
         state = "Status: Paused";
-        stateText_.setFillColor(sf::Color::White);
+        stateText_.setFillColor(palette.statusPaused);
     }
     stateText_.setString(state);
     
@@ -96,6 +101,19 @@ void UI::draw(sf::RenderWindow& window) {
     if (!fontLoaded_) {
         return;
     }
+    
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
+    // Обновляем цвета текста и фона при каждой отрисовке (на случай смены темы)
+    algorithmText_.setFillColor(palette.textPrimary);
+    timeComplexityText_.setFillColor(palette.textTertiary);
+    spaceComplexityText_.setFillColor(palette.textTertiary);
+    comparisonsText_.setFillColor(palette.textSecondary);
+    swapsText_.setFillColor(palette.textSecondary);
+    speedText_.setFillColor(palette.textSecondary);
+    controlsText_.setFillColor(palette.textSecondary);
+    leftBackground_.setFillColor(palette.panelBackground);
+    rightBackground_.setFillColor(palette.panelBackground);
     
     float maxWidth = 0.0f;
     
@@ -148,6 +166,8 @@ void UI::drawInfoOverlay(sf::RenderWindow& window) {
         return;
     }
     
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
     auto toSfStr = [](const char* utf8) -> sf::String {
         std::string s(utf8);
         return sf::String::fromUtf8(s.begin(), s.end());
@@ -158,85 +178,85 @@ void UI::drawInfoOverlay(sf::RenderWindow& window) {
     
     sf::RectangleShape overlay(sf::Vector2f(windowWidth, windowHeight));
     overlay.setPosition(0.0f, 0.0f);
-    overlay.setFillColor(sf::Color(8, 10, 18, 230));
+    overlay.setFillColor(palette.overlayBackground);
     window.draw(overlay);
     
     sf::Text title;
     title.setFont(font_);
     title.setCharacterSize(80);
     title.setScale(0.5f, 0.5f);
-    title.setFillColor(sf::Color::White);
+    title.setFillColor(palette.overlayTitle);
     title.setString(toSfStr(u8"SortLab — визуализатор алгоритмов сортировки"));
     
     sf::Text subtitle;
     subtitle.setFont(font_);
     subtitle.setCharacterSize(38);
     subtitle.setScale(0.5f, 0.5f);
-    subtitle.setFillColor(sf::Color(160, 160, 160));
+    subtitle.setFillColor(palette.overlaySubtitle);
     subtitle.setString(toSfStr(u8"Учебный инструмент для наглядного изучения алгоритмов сортировки"));
     
     sf::Text section1;
     section1.setFont(font_);
     section1.setCharacterSize(42);
     section1.setScale(0.5f, 0.5f);
-    section1.setFillColor(sf::Color(0, 220, 255));
+    section1.setFillColor(palette.overlaySection);
     section1.setString(toSfStr(u8"О программе"));
     
     sf::Text body1;
     body1.setFont(font_);
     body1.setCharacterSize(32);
     body1.setScale(0.5f, 0.5f);
-    body1.setFillColor(sf::Color(200, 200, 200));
+    body1.setFillColor(palette.overlayBody);
     body1.setString(toSfStr(u8"SortLab визуализирует работу алгоритмов сортировки в реальном времени.\nКаждый столбик — это элемент массива. Высота = значение элемента.\nЦвета: серый — обычный, голубой — сравнение, оранжевый — перестановка, зелёный — готово."));
     
     sf::Text section2;
     section2.setFont(font_);
     section2.setCharacterSize(42);
     section2.setScale(0.5f, 0.5f);
-    section2.setFillColor(sf::Color(0, 220, 255));
+    section2.setFillColor(palette.overlaySection);
     section2.setString(toSfStr(u8"Алгоритмы и сложность"));
     
     sf::Text body2;
     body2.setFont(font_);
     body2.setCharacterSize(32);
     body2.setScale(0.5f, 0.5f);
-    body2.setFillColor(sf::Color(200, 200, 200));
+    body2.setFillColor(palette.overlayBody);
     body2.setString(toSfStr(u8"[1] Bubble Sort      Время: O(n) / O(n^2) / O(n^2)              Память: O(1)\n[2] Selection Sort   Время: O(n^2) / O(n^2) / O(n^2)           Память: O(1)\n[3] Insertion Sort   Время: O(n) / O(n^2) / O(n^2)             Память: O(1)\n[4] Merge Sort       Время: O(n log n) / O(n log n) / O(n log n)  Память: O(n)\n[5] Quick Sort       Время: O(n log n) / O(n log n) / O(n^2)   Память: O(log n)\n[6] Heap Sort        Время: O(n log n)                         Память: O(1)\n[7] Shell Sort       Время: O(n log^2 n)                       Память: O(1)\n[8] Radix Sort       Время: O(n*k)                             Память: O(n + k)"));
     
     sf::Text section3;
     section3.setFont(font_);
     section3.setCharacterSize(42);
     section3.setScale(0.5f, 0.5f);
-    section3.setFillColor(sf::Color(0, 220, 255));
+    section3.setFillColor(palette.overlaySection);
     section3.setString(toSfStr(u8"Гистограмма (внизу слева)"));
     
     sf::Text body3;
     body3.setFont(font_);
     body3.setCharacterSize(32);
     body3.setScale(0.5f, 0.5f);
-    body3.setFillColor(sf::Color(200, 200, 200));
+    body3.setFillColor(palette.overlayBody);
     body3.setString(toSfStr(u8"Показывает количество сравнений на каждом шаге сортировки.\nВысокий пик = много сравнений за один шаг.\nBubble Sort даёт ровную линию, Quick Sort — резкие пики в начале."));
     
     sf::Text section4;
     section4.setFont(font_);
     section4.setCharacterSize(42);
     section4.setScale(0.5f, 0.5f);
-    section4.setFillColor(sf::Color(0, 220, 255));
+    section4.setFillColor(palette.overlaySection);
     section4.setString(toSfStr(u8"Карта прогресса (внизу справа)"));
     
     sf::Text body4;
     body4.setFont(font_);
     body4.setCharacterSize(32);
     body4.setScale(0.5f, 0.5f);
-    body4.setFillColor(sf::Color(200, 200, 200));
+    body4.setFillColor(palette.overlayBody);
     body4.setString(toSfStr(u8"Миниатюрная копия всего массива в виде сетки цветных квадратиков.\nПозволяет видеть глобальный прогресс сортировки даже при большом массиве.\nЗелёные квадраты = отсортированные элементы."));
     
     sf::Text footer;
     footer.setFont(font_);
     footer.setCharacterSize(30);
     footer.setScale(0.5f, 0.5f);
-    footer.setFillColor(sf::Color(100, 100, 100));
-    footer.setString(toSfStr(u8"Нажми [I] чтобы закрыть  |  [H] история  |  [Q] выход  |  [Space] старт/пауза  |  [R] перемешать"));
+    footer.setFillColor(palette.overlayFooter);
+    footer.setString(toSfStr(u8"Нажми [I] чтобы закрыть  |  [H] история  |  [Q] выход  |  [Space] старт/пауза  |  [R] перемешать  |  [T] тема"));
     
     float totalHeight = 0.0f;
     totalHeight += title.getGlobalBounds().height + 10.0f;
@@ -328,6 +348,8 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
         return;
     }
     
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
     auto toSfStr = [](const char* utf8) -> sf::String {
         std::string s(utf8);
         return sf::String::fromUtf8(s.begin(), s.end());
@@ -338,14 +360,14 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
     
     sf::RectangleShape overlay(sf::Vector2f(windowWidth, windowHeight));
     overlay.setPosition(0.0f, 0.0f);
-    overlay.setFillColor(sf::Color(8, 10, 18, 230));
+    overlay.setFillColor(palette.overlayBackground);
     window.draw(overlay);
     
     sf::Text title;
     title.setFont(font_);
     title.setCharacterSize(80);
     title.setScale(0.5f, 0.5f);
-    title.setFillColor(sf::Color::White);
+    title.setFillColor(palette.overlayTitle);
     title.setString(toSfStr(u8"История сортировок  [H — закрыть]"));
     
     const auto& records = history.getRecords();
@@ -362,7 +384,7 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
         emptyText.setFont(font_);
         emptyText.setCharacterSize(40);
         emptyText.setScale(0.5f, 0.5f);
-        emptyText.setFillColor(sf::Color(160, 160, 160));
+        emptyText.setFillColor(palette.overlaySubtitle);
         emptyText.setString(toSfStr(u8"Нет завершённых сортировок"));
         
         sf::FloatRect emptyBounds = emptyText.getGlobalBounds();
@@ -375,7 +397,7 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
     header.setFont(font_);
     header.setCharacterSize(36);
     header.setScale(0.5f, 0.5f);
-    header.setFillColor(sf::Color(0, 220, 255));
+    header.setFillColor(palette.historyTableHeader);
     header.setString(toSfStr(u8"Алгоритм              Размер    Сравнений    Свапов    Скорость"));
     
     float tableX = 100.0f;
@@ -385,7 +407,7 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
     
     sf::RectangleShape separator(sf::Vector2f(windowWidth - 200.0f, 1.0f));
     separator.setPosition(tableX, startY);
-    separator.setFillColor(sf::Color(60, 70, 90));
+    separator.setFillColor(palette.separator);
     window.draw(separator);
     startY += 10.0f;
     
@@ -400,11 +422,11 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
         rowBg.setPosition(tableX, startY);
         
         if (isNewest) {
-            rowBg.setFillColor(sf::Color(30, 60, 90, 150));
+            rowBg.setFillColor(palette.historyNewestHighlight);
         } else if (displayCount % 2 == 1) {
-            rowBg.setFillColor(sf::Color(15, 18, 25, 100));
+            rowBg.setFillColor(palette.historyRowOdd);
         } else {
-            rowBg.setFillColor(sf::Color(0, 0, 0, 0));
+            rowBg.setFillColor(palette.historyRowEven);
         }
         window.draw(rowBg);
         
@@ -419,7 +441,7 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
         rowText.setFont(font_);
         rowText.setCharacterSize(32);
         rowText.setScale(0.5f, 0.5f);
-        rowText.setFillColor(isNewest ? sf::Color(100, 255, 150) : sf::Color(200, 200, 200));
+        rowText.setFillColor(isNewest ? palette.historyNewestText : palette.overlayBody);
         rowText.setString(algoBuffer);
         rowText.setPosition(tableX, startY + 2.0f);
         window.draw(rowText);
@@ -433,11 +455,11 @@ void UI::drawHistoryOverlay(sf::RenderWindow& window, const SortHistory& history
         speedText.setScale(0.5f, 0.5f);
         
         if (record.relativeSpeed == 1.0f) {
-            speedText.setFillColor(sf::Color(100, 255, 120));
+            speedText.setFillColor(palette.historySpeedFastest);
         } else if (record.relativeSpeed >= 2.0f) {
-            speedText.setFillColor(sf::Color(255, 160, 60));
+            speedText.setFillColor(palette.historySpeedSlow);
         } else {
-            speedText.setFillColor(isNewest ? sf::Color(100, 255, 150) : sf::Color(200, 200, 200));
+            speedText.setFillColor(isNewest ? palette.historyNewestText : palette.overlayBody);
         }
         
         speedText.setString(speedBuffer);

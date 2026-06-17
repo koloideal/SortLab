@@ -8,6 +8,7 @@
 #include "OperationsHistory.hpp"
 #include "ProgressMap.hpp"
 #include "SortHistory.hpp"
+#include "Theme.hpp"
 
 class App {
 public:

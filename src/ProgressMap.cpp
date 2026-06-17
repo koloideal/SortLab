@@ -1,10 +1,13 @@
 #include "ProgressMap.hpp"
+#include "Theme.hpp"
 #include <cmath>
 
 ProgressMap::ProgressMap() {
 }
 
 void ProgressMap::draw(sf::RenderWindow& window, const Array& array, sf::Font& font, bool fontLoaded) {
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
     const float startX = 1066.0f;
     const float startY = 760.0f;
     const float width = 534.0f;
@@ -12,7 +15,7 @@ void ProgressMap::draw(sf::RenderWindow& window, const Array& array, sf::Font& f
     
     sf::RectangleShape background(sf::Vector2f(width, height));
     background.setPosition(startX, startY);
-    background.setFillColor(sf::Color(12, 15, 25));
+    background.setFillColor(palette.bottomPanelBackground);
     window.draw(background);
     
     if (fontLoaded) {
@@ -20,7 +23,7 @@ void ProgressMap::draw(sf::RenderWindow& window, const Array& array, sf::Font& f
         label.setFont(font);
         label.setString("Progress Map");
         label.setCharacterSize(13);
-        label.setFillColor(sf::Color(180, 180, 180));
+        label.setFillColor(palette.textTertiary);
         label.setPosition(startX + 10.0f, startY + 5.0f);
         window.draw(label);
     }
@@ -67,16 +70,18 @@ void ProgressMap::draw(sf::RenderWindow& window, const Array& array, sf::Font& f
 }
 
 sf::Color ProgressMap::getColorForState(Array::State state) const {
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
     switch (state) {
         case Array::State::NORMAL:
-            return sf::Color(100, 120, 150);
+            return palette.progressMapNormal;
         case Array::State::COMPARE:
-            return sf::Color(0, 220, 255);
+            return palette.stateCompare;
         case Array::State::SWAP:
-            return sf::Color(255, 120, 30);
+            return palette.stateSwap;
         case Array::State::SORTED:
-            return sf::Color(50, 220, 120);
+            return palette.stateSorted;
         default:
-            return sf::Color(100, 120, 150);
+            return palette.progressMapNormal;
     }
 }

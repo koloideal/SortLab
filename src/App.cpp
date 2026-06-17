@@ -148,6 +148,10 @@ void App::handleEvents() {
                     }
                     break;
                     
+                case sf::Keyboard::T:
+                    Theme::getInstance().toggleTheme();
+                    break;
+                    
                 default:
                     break;
             }
@@ -230,7 +234,8 @@ void App::update(float dt) {
 }
 
 void App::render() {
-    window_.clear(sf::Color(10, 12, 20)); 
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    window_.clear(palette.windowBackground); 
 
     const float topUIHeight = 80.0f;
     const float bottomPanelHeight = 140.0f;
@@ -256,20 +261,20 @@ void App::render() {
                 useGradient = true;
                 break;
             case Array::State::COMPARE:
-                barColor = sf::Color(0, 220, 255);
+                barColor = palette.stateCompare;
                 break;
             case Array::State::SWAP:
-                barColor = sf::Color(255, 120, 30);
+                barColor = palette.stateSwap;
                 break;
             case Array::State::SORTED:
-                barColor = sf::Color(50, 220, 120);
+                barColor = palette.stateSorted;
                 break;
         }
         
         if (useGradient) {
             float normalizedValue = array_.getValue(i) / maxVal;
-            sf::Color bottomColor(60, 80, 140);
-            sf::Color topColor(160, 180, 255);
+            sf::Color bottomColor = palette.stateNormalLow;
+            sf::Color topColor = palette.stateNormalHigh;
             
             sf::Color gradientTop(
                 static_cast<sf::Uint8>(bottomColor.r + (topColor.r - bottomColor.r) * normalizedValue),
@@ -299,7 +304,7 @@ void App::render() {
     
     sf::RectangleShape separator(sf::Vector2f(window_.getSize().x, 1.0f));
     separator.setPosition(0.0f, mainAreaBottom);
-    separator.setFillColor(sf::Color(40, 45, 60));
+    separator.setFillColor(palette.separator);
     window_.draw(separator);
     
     renderDeltaHistogram();
@@ -307,7 +312,7 @@ void App::render() {
     
     sf::RectangleShape verticalSeparator(sf::Vector2f(1.0f, bottomPanelHeight));
     verticalSeparator.setPosition(1066.0f, mainAreaBottom);
-    verticalSeparator.setFillColor(sf::Color(40, 45, 60));
+    verticalSeparator.setFillColor(palette.separator);
     window_.draw(verticalSeparator);
     
     ui_.draw(window_);
@@ -324,6 +329,8 @@ void App::render() {
 }
 
 void App::renderDeltaHistogram() {
+    const ColorPalette& palette = Theme::getInstance().getPalette();
+    
     const float startX = 0.0f;
     const float startY = 760.0f;
     const float width = 1066.0f;
@@ -331,7 +338,7 @@ void App::renderDeltaHistogram() {
     
     sf::RectangleShape background(sf::Vector2f(width, height));
     background.setPosition(startX, startY);
-    background.setFillColor(sf::Color(12, 15, 25));
+    background.setFillColor(palette.bottomPanelBackground);
     window_.draw(background);
     
     const auto& deltaHistory = opsHistory_.getDeltaHistory();
@@ -350,8 +357,8 @@ void App::renderDeltaHistogram() {
             float y = startY + height - barHeight;
             
             float normalizedValue = static_cast<float>(deltaHistory[i]) / static_cast<float>(maxDelta);
-            sf::Color lowColor(0, 80, 200);
-            sf::Color highColor(0, 240, 255);
+            sf::Color lowColor = palette.histogramLow;
+            sf::Color highColor = palette.histogramHigh;
             
             sf::Color barColor(
                 static_cast<sf::Uint8>(lowColor.r + (highColor.r - lowColor.r) * normalizedValue),
@@ -370,7 +377,7 @@ void App::renderDeltaHistogram() {
     
     sf::RectangleShape baseline(sf::Vector2f(width, 1.0f));
     baseline.setPosition(startX, startY + height - 1.0f);
-    baseline.setFillColor(sf::Color(60, 70, 90));
+    baseline.setFillColor(palette.separator);
     window_.draw(baseline);
     
     if (bottomPanelFontLoaded_) {
@@ -378,7 +385,7 @@ void App::renderDeltaHistogram() {
         label.setFont(bottomPanelFont_);
         label.setString("Delta Comparisons / step");
         label.setCharacterSize(13);
-        label.setFillColor(sf::Color(180, 180, 180));
+        label.setFillColor(palette.textTertiary);
         label.setPosition(startX + 10.0f, startY + 5.0f);
         window_.draw(label);
     }

@@ -29,6 +29,7 @@ set(SORTLAB_SOURCES
     src/Array.cpp
     src/Sorter.cpp
     src/UI.cpp
+    src/Theme.cpp
     src/OperationsHistory.cpp
     src/ProgressMap.cpp
     src/SortHistory.cpp
