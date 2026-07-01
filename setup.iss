@@ -23,10 +23,11 @@ WizardStyle=modern
 
 [Files]
 Source: "build\SortLab.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\libsfml-graphics-2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\libsfml-window-2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\libsfml-system-2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\libsfml-audio-2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\sfml-graphics-2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\sfml-window-2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\sfml-system-2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\sfml-audio-2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\openal32.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\libgcc_s_seh-1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\libwinpthread-1.dll"; DestDir: "{app}"; Flags: ignoreversion
