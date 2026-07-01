@@ -27,6 +27,9 @@ Source: "build\libsfml-graphics-2.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\libsfml-window-2.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\libsfml-system-2.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\libsfml-audio-2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\libgcc_s_seh-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\libwinpthread-1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "assets\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
